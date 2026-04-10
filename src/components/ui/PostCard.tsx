@@ -49,10 +49,11 @@ const formatRelativeTime = (dateString: string) => {
 interface PostCardProps {
   board: BoardInfo;
   currentUser: { user_id: string; user_name: string } | null;
+  defaultExpanded?: boolean;
 }
 
-export function PostCard({ board, currentUser }: PostCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+export function PostCard({ board, currentUser, defaultExpanded = false }: PostCardProps) {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [comments, setComments] = useState<Comment[]>([]);
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);

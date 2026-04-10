@@ -23,7 +23,7 @@ type User = {
   user_name: string;
 };
 
-export default function ChatsPage() {
+function ChatsContent() {
   const router = useRouter();
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -451,5 +451,17 @@ export default function ChatsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ChatsPage() {
+  return (
+    <React.Suspense fallback={
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', justifyContent: 'center', alignItems: 'center', backgroundColor: 'var(--background)' }}>
+        <Loader2 className="animate-spin text-primary" size={32} />
+      </div>
+    }>
+      <ChatsContent />
+    </React.Suspense>
   );
 }
