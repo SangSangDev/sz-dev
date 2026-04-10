@@ -20,12 +20,12 @@ export type SessionUser = {
   menus: MenuInfo[];
 };
 
-const SESSION_COOKIE_NAME = 'sz_session';
+const SESSION_COOKIE_NAME = 'sz_session_dev';
 const SESSION_EXPIRY = 60 * 60 * 24 * 7; // 7 days in seconds
 
 export async function createSession(user: SessionUser) {
   const sessionId = crypto.randomBytes(32).toString('hex');
-  
+
   // 1. Kickout previous active session
   const oldSessionId = await redis.get(`user_session_map:${user.user_id}`);
   if (oldSessionId) {
@@ -37,10 +37,10 @@ export async function createSession(user: SessionUser) {
 
   // 2. Set the newly created session id into the map
   await redis.set(`user_session_map:${user.user_id}`, sessionId, 'EX', SESSION_EXPIRY);
-  
+
   // 3. Save standard session data
   await redis.set(`session:${sessionId}`, JSON.stringify(user), 'EX', SESSION_EXPIRY);
-  
+
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, sessionId, {
     httpOnly: true,
@@ -88,6 +88,6 @@ export async function destroySession() {
     }
     await redis.del(`session:${sessionId}`);
   }
-  
+
   cookieStore.delete(SESSION_COOKIE_NAME);
 }
