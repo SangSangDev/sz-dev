@@ -20,8 +20,8 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Make sure public/uploads exists
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    // Save to .uploads directory outside of public to prevent dynamic file 404s after build
+    const uploadDir = path.join(process.cwd(), '.uploads');
     try {
       await fs.access(uploadDir);
     } catch {
@@ -39,8 +39,8 @@ export async function POST(req: NextRequest) {
     // Write file to public/uploads
     await fs.writeFile(filepath, buffer);
 
-    // Return the URL to access it
-    const fileUrl = `/uploads/${filename}`;
+    // Return the API URL to stream it dynamically
+    const fileUrl = `/api/images/${filename}`;
 
     return NextResponse.json({ success: true, url: fileUrl }, { status: 200 });
   } catch (error) {
