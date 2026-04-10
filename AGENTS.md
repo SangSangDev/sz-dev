@@ -15,15 +15,17 @@ When building or modifying user interfaces in this repository, you MUST adhere t
    - If you need a simple alert (without a cancel button), pass ONLY the `onConfirm` prop to `ConfirmModal`. The cancel button is automatically hidden if `onCancel` is omitted.
 
 2. **Toasts vs Modals**
-   - Use **`window.dispatchEvent(new CustomEvent('show_toast', { detail: { message: '...', type: 'success' | 'error' | 'info' } }))`** for fleeting notifications (e.g., "Saved successfully", "Copied to clipboard").
-   - Use **`ConfirmModal`** for critical interrupts that require user acknowledgment or a decision (e.g., "Concurrent login detected - You will be logged out", "Are you sure you want to delete?").
+   - Use **`showToast('Message', 'success' | 'error' | 'info')`** from `src/lib/toast.ts` for fleeting notifications (e.g., "Saved successfully", "Copied to clipboard"). Do NOT use raw window.dispatchEvent.
+   - Use **`ConfirmModal`** for critical interrupts that require user acknowledgment or a decision.
 
 3. **Buttons & Inputs**
    - Always use the custom **`Button`** component (`src/components/ui/Button.tsx`). Do not use native `<button>` tags unless for microscopic icon wrapper functionality.
    - Always use the custom **`Input`** and **`Textarea`** components (`src/components/ui/Input.tsx`, `Textarea.tsx`) for styling consistency.
 
-4. **Styling Approach**
+4. **Styling Approach (NO TAILWIND)**
+   - **STRICTLY AVOID TAILWIND CSS**. It causes native compiler binding errors in this Windows/Node.js environment. Do not install Tailwind or suggest adding it.
    - Utilize existing CSS variables defined in `src/app/globals.css` (`var(--primary)`, `var(--text-muted)`, `var(--border-color)` etc.).
+   - Use our predefined global CSS utility classes (`.text-muted`, `.bg-card`, `.empty-state`, `.sticky-header`) mapped in `globals.css` instead of raw `<div style={{ ... }}>` boilerplate.
    - Rely on Lucide Icons (`lucide-react`) for any iconography.
 
 5. **Bottom Sheets & Rollup Menus**

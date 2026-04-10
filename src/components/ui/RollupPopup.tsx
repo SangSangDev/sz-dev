@@ -97,7 +97,8 @@ export function RollupPopup({ isOpen, onClose, children }: RollupPopupProps) {
           position: 'fixed', 
           bottom: 0, left: 0, right: 0, 
           zIndex: 99999,
-          backgroundColor: 'white', 
+          backgroundColor: 'var(--card-bg)', 
+          color: 'var(--foreground)',
           borderTopLeftRadius: '1.25rem', 
           borderTopRightRadius: '1.25rem',
           padding: '1.5rem', 
@@ -117,13 +118,13 @@ export function RollupPopup({ isOpen, onClose, children }: RollupPopupProps) {
         }}
       >
         {/* Handle bar indicator */}
-        <div style={{ width: '40px', height: '4px', backgroundColor: '#e5e7eb', borderRadius: '4px', margin: '0 auto 1.25rem', cursor: 'grab' }} />
+        <div style={{ width: '40px', height: '4px', backgroundColor: 'var(--handle-color)', borderRadius: '4px', margin: '0 auto 1.25rem', cursor: 'grab' }} />
         
         {/* Content passed from caller */}
         {children}
         
         {/* Anti-gap fill for over-pulling upwards */}
-        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, height: '50vh', backgroundColor: 'white' }} />
+        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, height: '50vh', backgroundColor: 'var(--card-bg)' }} />
       </div>
     </>,
     document.body

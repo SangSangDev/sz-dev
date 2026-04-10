@@ -79,11 +79,11 @@ export default function NotificationsPage() {
       <div style={{ flex: 1, position: 'relative' }}>
         <div className="p-4" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem', minHeight: '100%' }}>
           {loading ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '10rem', color: 'var(--text-muted)' }}>
+            <div className="empty-state" style={{ height: '10rem' }}>
               잠시만 기다려주세요...
             </div>
           ) : notifications.length === 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '10rem', color: 'var(--text-muted)' }}>
+            <div className="empty-state" style={{ height: '10rem' }}>
               <Bell size={48} style={{ marginBottom: '1rem', opacity: 0.2 }} />
               <p>새로운 알림이 없습니다.</p>
             </div>
@@ -92,10 +92,9 @@ export default function NotificationsPage() {
               <div 
                 key={notif.notif_no} 
                 onClick={() => handleRead(notif)}
-                className="list-card"
+                className="list-card bg-card"
                 style={{ 
                   cursor: 'pointer', 
-                  backgroundColor: '#ffffff',
                   border: notif.is_read === 'N' ? '1px solid rgba(91,95,199,0.2)' : '1px solid var(--border-color)',
                   display: 'flex', alignItems: 'flex-start', gap: '0.75rem'
                 }}

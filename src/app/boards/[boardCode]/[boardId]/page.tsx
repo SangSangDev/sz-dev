@@ -64,8 +64,8 @@ export default function SinglePostPage({ params }: { params: Promise<{ boardCode
 
   if (loading) {
     return (
-      <div className="flex flex-col h-full bg-background relative">
-        <header className="header">
+      <div className="flex flex-col h-full relative" style={{ backgroundColor: 'var(--background)' }}>
+        <header className="header shrink-0" style={{ zIndex: 10, backgroundColor: 'var(--card-bg)' }}>
           <button onClick={() => router.back()} className="mr-3 text-text-muted hover:text-text p-1">
             <ArrowLeft size={24} />
           </button>
@@ -78,8 +78,8 @@ export default function SinglePostPage({ params }: { params: Promise<{ boardCode
 
   if (error || !board) {
     return (
-      <div className="flex flex-col h-full bg-background relative">
-        <header className="header">
+      <div className="flex flex-col h-full relative" style={{ backgroundColor: 'var(--background)' }}>
+        <header className="header shrink-0" style={{ zIndex: 10, backgroundColor: 'var(--card-bg)' }}>
           <button onClick={() => router.back()} className="mr-3 text-text-muted hover:text-text p-1">
             <ArrowLeft size={24} />
           </button>
@@ -93,8 +93,8 @@ export default function SinglePostPage({ params }: { params: Promise<{ boardCode
   }
 
   return (
-    <div className="flex flex-col h-full bg-background relative">
-      <header className="header">
+    <div className="flex flex-col h-full relative" style={{ backgroundColor: 'var(--background)' }}>
+      <header className="header shrink-0" style={{ zIndex: 10, backgroundColor: 'var(--card-bg)' }}>
         <button onClick={() => router.back()} className="mr-3 text-text-muted hover:text-text p-1">
           <ArrowLeft size={24} />
         </button>

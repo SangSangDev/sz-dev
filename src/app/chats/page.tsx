@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, MessageSquare, Users, RefreshCw, Search, MessageCircle, MoreVertical, Loader2, X } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { FabMenu, FabMenuItem } from '@/components/ui/FabMenu';
 
 type ChatRoom = {
   room_no: string;
@@ -33,7 +34,16 @@ export default function ChatsPage() {
   const pullStartY = React.useRef(0);
 
   // Tab State
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'PUBLIC' | 'PRIVATE'>('PRIVATE');
+
+  // Set initial tab from URL on mount
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'PUBLIC' || tabParam === 'PRIVATE') {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   const fetchRooms = async () => {
     try {
@@ -54,8 +64,7 @@ export default function ChatsPage() {
     }
   };
 
-  // FAB Menu States
-  const [showFabMenu, setShowFabMenu] = useState(false);
+  // (Removed FAB Menu States since they are now handled by FabMenu)
 
   // Direct Message Modal States
   const [showDirectModal, setShowDirectModal] = useState(false);
@@ -198,13 +207,13 @@ export default function ChatsPage() {
 
   return (
     <div className="flex flex-col min-h-screen pb-20 max-w-2xl mx-auto w-full relative" style={{ backgroundColor: 'var(--background)' }}>
-      <header className="header shrink-0" style={{ zIndex: 10, display: 'flex', flexDirection: 'column', height: 'auto', padding: 0, backgroundColor: 'var(--card-bg)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', height: '3.5rem', padding: '0 1.25rem' }}>
+      <header className="header shrink-0" style={{ zIndex: 10, display: 'flex', flexDirection: 'column', height: 'auto', padding: 0, backgroundColor: 'transparent' }}>
+        <div style={{ display: 'flex', alignItems: 'center', height: '3.5rem', padding: '0 1.25rem', backgroundColor: 'var(--background)' }}>
           <h1 className="text-xl font-bold">채팅</h1>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', width: '100%' }}>
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', width: '100%', backgroundColor: 'var(--card-bg)' }}>
           <button
             onClick={() => setActiveTab('PRIVATE')}
             style={{
@@ -280,11 +289,11 @@ export default function ChatsPage() {
           onTouchEnd={handleTouchEnd}
         >
           {isLoading ? (
-            <div style={{ flex: 1, padding: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'var(--text-muted)' }}>
+            <div className="empty-state">
               목록 불러오는 중...
             </div>
           ) : filteredRooms.length === 0 ? (
-            <div style={{ flex: 1, padding: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', height: '70vh' }}>
+            <div className="empty-state" style={{ height: '70vh' }}>
               <div style={{ backgroundColor: 'white', width: '5rem', height: '5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }}>
                 <MessageSquare size={32} color="var(--text-muted)" />
               </div>
@@ -322,7 +331,7 @@ export default function ChatsPage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden' }}>
                           <span style={{ fontWeight: 'bold', fontSize: '0.9375rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--foreground)' }}>{room.room_name}</span>
                           {room.room_type !== 'PRIVATE' && (
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.6875rem', color: 'var(--text-muted)', fontWeight: 500, backgroundColor: '#f3f4f6', padding: '0.125rem 0.375rem', borderRadius: '9999px', flexShrink: 0 }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.6875rem', color: 'var(--text-muted)', fontWeight: 500, backgroundColor: 'var(--background)', padding: '0.125rem 0.375rem', borderRadius: '9999px', flexShrink: 0 }}>
                               <Users size={10} /> {room.member_count}
                             </span>
                           )}
@@ -345,62 +354,18 @@ export default function ChatsPage() {
         </div>
       </div>
 
-      {showFabMenu && (
-        <div 
-          className="animate-fade-in"
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 40, backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(2px)' }} 
-          onClick={() => setShowFabMenu(false)} 
+      <FabMenu>
+        <FabMenuItem 
+          onClick={() => setShowDirectModal(true)}
+          label="사용자 검색"
+          icon={<Search size={16} color="var(--primary)" />}
         />
-      )}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '5rem', // Adjusted slightly above nav bar normally handled by .fab-btn class context, but defining fully here
-          right: '1.5rem',
-          zIndex: 50,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-end',
-          gap: '0.75rem'
-        }}
-      >
-        {/* Expanded Menu Options */}
-        {showFabMenu && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-end', animation: 'slideUp 0.15s ease-out' }}>
-            <button
-              onClick={() => {
-                setShowFabMenu(false);
-                setShowDirectModal(true);
-              }}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'white', padding: '0.75rem 1rem', borderRadius: '2rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', color: 'var(--foreground)', border: 'none', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}
-            >
-              <span>사용자 검색</span>
-              <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', backgroundColor: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Search size={16} color="var(--primary)" />
-              </div>
-            </button>
-
-            <Link
-              href="/chats/create"
-              onClick={() => setShowFabMenu(false)}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'white', padding: '0.75rem 1rem', borderRadius: '2rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', color: 'var(--foreground)', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem' }}
-            >
-              <span>그룹 채팅 만들기</span>
-              <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', backgroundColor: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Users size={16} color="var(--primary)" />
-              </div>
-            </Link>
-          </div>
-        )}
-
-        {/* Main + Button */}
-        <button
-          onClick={() => setShowFabMenu(!showFabMenu)}
-          style={{ width: '3.5rem', height: '3.5rem', borderRadius: '50%', backgroundColor: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', boxShadow: '0 10px 15px -3px rgba(99, 102, 241, 0.4), 0 4px 6px -2px rgba(99, 102, 241, 0.2)', transition: 'transform 0.2s', transform: showFabMenu ? 'rotate(45deg)' : 'none' }}
-        >
-          <Plus size={28} strokeWidth={2.5} />
-        </button>
-      </div>
+        <FabMenuItem 
+          href="/chats/create"
+          label="그룹 채팅 만들기"
+          icon={<Users size={16} color="var(--primary)" />}
+        />
+      </FabMenu>
 
       {/* Direct Message (1:1) Search Modal */}
       {showDirectModal && (

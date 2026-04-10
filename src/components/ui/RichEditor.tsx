@@ -92,20 +92,20 @@ export function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
   if (!editor) return <div className="p-4 text-center text-muted border rounded-md">Loading editor...</div>;
 
   return (
-    <div className="rich-editor-wrapper flex flex-col border border-border rounded-md overflow-hidden bg-white relative">
+    <div className="rich-editor-wrapper flex flex-col border border-border rounded-md overflow-hidden bg-card relative">
       {uploading && (
-        <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10 font-bold text-primary">
+        <div className="absolute inset-0 bg-card flex items-center justify-center z-10 font-bold text-primary" style={{ opacity: 0.8 }}>
           사진 업로드 중...
         </div>
       )}
 
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 bg-gray-50 border-b border-border">
+      <div className="flex flex-wrap items-center gap-1 p-2 bg-transparent border-b border-border">
         <button 
           title="굵게"
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()} 
-          className={`p-1.5 rounded transition-colors ${editor.isActive('bold') ? 'bg-primary text-white' : 'hover:bg-gray-200 text-gray-700'}`}
+          className={`p-1.5 rounded transition-colors ${editor.isActive('bold') ? 'bg-primary text-white' : 'hover:bg-black/10 text-black'}`}
         >
           <Bold size={16} strokeWidth={2.5} />
         </button>
@@ -113,7 +113,7 @@ export function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
           title="기울임"
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()} 
-          className={`p-1.5 rounded transition-colors ${editor.isActive('italic') ? 'bg-primary text-white' : 'hover:bg-gray-200 text-gray-700'}`}
+          className={`p-1.5 rounded transition-colors ${editor.isActive('italic') ? 'bg-primary text-white' : 'hover:bg-black/10 text-black'}`}
         >
           <Italic size={16} strokeWidth={2.5} />
         </button>
@@ -121,7 +121,7 @@ export function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
           title="취소선"
           type="button"
           onClick={() => editor.chain().focus().toggleStrike().run()} 
-          className={`p-1.5 rounded transition-colors ${editor.isActive('strike') ? 'bg-primary text-white' : 'hover:bg-gray-200 text-gray-700'}`}
+          className={`p-1.5 rounded transition-colors ${editor.isActive('strike') ? 'bg-primary text-white' : 'hover:bg-black/10 text-black'}`}
         >
           <Strikethrough size={16} strokeWidth={2.5} />
         </button>
@@ -130,7 +130,7 @@ export function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
           title="제목"
           type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} 
-          className={`p-1.5 rounded transition-colors ${editor.isActive('heading') ? 'bg-primary text-white' : 'hover:bg-gray-200 text-gray-700'}`}
+          className={`p-1.5 rounded transition-colors ${editor.isActive('heading') ? 'bg-primary text-white' : 'hover:bg-black/10 text-black'}`}
         >
           <Heading2 size={16} strokeWidth={2.5} />
         </button>
@@ -138,7 +138,7 @@ export function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
           title="목록"
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()} 
-          className={`p-1.5 rounded transition-colors ${editor.isActive('bulletList') ? 'bg-primary text-white' : 'hover:bg-gray-200 text-gray-700'}`}
+          className={`p-1.5 rounded transition-colors ${editor.isActive('bulletList') ? 'bg-primary text-white' : 'hover:bg-black/10 text-black'}`}
         >
           <List size={16} strokeWidth={2.5} />
         </button>
@@ -147,7 +147,7 @@ export function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
           title="코드 블록"
           type="button"
           onClick={() => editor.chain().focus().toggleCodeBlock().run()} 
-          className={`p-1.5 rounded transition-colors ${editor.isActive('codeBlock') ? 'bg-primary text-white' : 'hover:bg-gray-200 text-gray-700'}`}
+          className={`p-1.5 rounded transition-colors ${editor.isActive('codeBlock') ? 'bg-primary text-white' : 'hover:bg-black/10 text-black'}`}
         >
           <Code size={16} strokeWidth={2.5} />
         </button>
@@ -155,7 +155,7 @@ export function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
           title="인용구"
           type="button"
           onClick={() => editor.chain().focus().toggleBlockquote().run()} 
-          className={`p-1.5 rounded transition-colors ${editor.isActive('blockquote') ? 'bg-primary text-white' : 'hover:bg-gray-200 text-gray-700'}`}
+          className={`p-1.5 rounded transition-colors ${editor.isActive('blockquote') ? 'bg-primary text-white' : 'hover:bg-black/10 text-black'}`}
         >
           <Quote size={16} strokeWidth={2.5} />
         </button>
@@ -166,7 +166,7 @@ export function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
         <button
           type="button"
           onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
-          className={`p-1.5 rounded transition-colors ${editor.isActive('table') ? 'bg-primary text-white' : 'hover:bg-gray-200 text-gray-700'} flex items-center gap-1`}
+          className={`p-1.5 rounded transition-colors ${editor.isActive('table') ? 'bg-primary text-white' : 'hover:bg-black/10 text-black'} flex items-center gap-1`}
           title="표 삽입"
         >
           <TableIcon size={16} strokeWidth={2.5} />
@@ -186,7 +186,7 @@ export function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
           title="사진 추가"
           type="button"
           onClick={() => fileInputRef.current?.click()} 
-          className="p-1.5 rounded transition-colors hover:bg-gray-200 text-gray-700 flex items-center gap-1"
+          className="p-1.5 rounded transition-colors hover:bg-black/10 text-black flex items-center gap-1"
         >
           <ImageIcon size={16} strokeWidth={2.5} />
         </button>

@@ -202,16 +202,17 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 4rem)', maxWidth: '42rem', margin: '0 auto', width: '100%', backgroundColor: '#f8f9fa', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', maxWidth: '42rem', margin: '0 auto', width: '100%', backgroundColor: 'var(--background)', overflow: 'hidden', position: 'relative' }}>
       {/* Header */}
-      <header className="header shrink-0 bg-white" style={{ zIndex: 20 }}>
-        <Link href="/chats" style={{ color: 'var(--text-muted)' }}>
+      <header className="header shrink-0 sticky-header">
+        <Link href={`/chats?tab=${roomType}`} className="text-muted">
           <ChevronLeft size={26} strokeWidth={2.5} />
         </Link>
         <h1 style={{ fontSize: '1.0625rem', fontWeight: 'bold', color: 'var(--foreground)' }}>{roomName}</h1>
         <button
           onClick={() => setIsDropdownOpen(true)}
-          style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem' }}
+          className="text-muted"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem' }}
         >
           <MoreHorizontal size={26} strokeWidth={2.5} />
         </button>
@@ -220,11 +221,11 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
       {/* Messages Area */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingBottom: '1.5rem' }}>
         {isLoadingHistory ? (
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'var(--text-muted)' }}>
+          <div className="empty-state">
             <Loader2 className="animate-spin" size={20} style={{ marginRight: '0.5rem' }} /> 대화 불러오는 중...
           </div>
         ) : messages.length === 0 ? (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'var(--text-muted)' }}>
+          <div className="empty-state">
             <div style={{ backgroundColor: 'rgba(243, 244, 246, 0.8)', width: '4rem', height: '4rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
               <MessageSquare size={24} color="#9ca3af" />
             </div>
@@ -284,7 +285,7 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
                           wordBreak: 'break-word',
                           lineHeight: 1.5,
                           boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-                          backgroundColor: isMe ? 'var(--primary)' : 'white',
+                          backgroundColor: isMe ? 'var(--primary)' : 'var(--card-bg)',
                           color: isMe ? 'white' : 'var(--foreground)',
                           border: isMe ? 'none' : '1px solid var(--border-color)',
                           borderRadius: '1rem',
@@ -305,9 +306,9 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
       </div>
 
       {/* Input Area */}
-      <div style={{ flexShrink: 0, backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(12px)', borderTop: '1px solid var(--border-color)', padding: '0.75rem', zIndex: 20, boxShadow: '0 -4px 10px -4px rgba(0,0,0,0.05)' }}>
+      <div style={{ flexShrink: 0, backgroundColor: 'var(--card-bg)', borderTop: '1px solid var(--border-color)', padding: '0.75rem', zIndex: 20, boxShadow: '0 -4px 10px -4px rgba(0,0,0,0.05)' }}>
         <form onSubmit={handleSendMessage} style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', maxWidth: '42rem', margin: '0 auto' }}>
-          <div style={{ flex: 1, backgroundColor: 'rgba(243, 244, 246, 0.8)', borderRadius: '1rem', border: '1px solid transparent', display: 'flex', alignItems: 'center', minHeight: '2.75rem', transition: 'all 0.2s' }}>
+          <div style={{ flex: 1, backgroundColor: 'var(--background)', borderRadius: '1rem', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', minHeight: '2.75rem', transition: 'all 0.2s' }}>
             <input
               ref={inputRef}
               type="text"
@@ -316,7 +317,7 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
               placeholder="메시지 입력..."
               disabled={isLoadingHistory}
               className="form-input"
-              style={{ flex: 1, backgroundColor: 'transparent', border: 'none', padding: '0.75rem 1rem', fontSize: '0.9375rem', boxShadow: 'none' }}
+              style={{ flex: 1, backgroundColor: 'transparent', border: 'none', padding: '0.75rem 1rem', fontSize: '0.9375rem', boxShadow: 'none', color: 'var(--foreground)' }}
               autoComplete="off"
             />
           </div>
@@ -376,7 +377,7 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
       {/* User Invite Modal */}
       {showInviteModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', animation: 'fadeIn 0.2s ease-out', padding: '1rem' }}>
-          <div style={{ backgroundColor: 'white', borderRadius: '1rem', width: '100%', maxWidth: '28rem', maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', overflow: 'hidden', animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+          <div style={{ backgroundColor: 'var(--card-bg)', borderRadius: '1rem', width: '100%', maxWidth: '28rem', maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', overflow: 'hidden', animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}>
 
             {/* Modal Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-color)' }}>
@@ -484,7 +485,8 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
           {roomType === 'PUBLIC' && createdBy === currentUser.user_id && (
             <>
               <button 
-                className="w-full text-left font-medium p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-foreground flex items-center transition-colors"
+                className="w-full text-left font-medium p-3 rounded-lg flex items-center transition-colors"
+                style={{ color: 'var(--foreground)' }}
                 onClick={() => { setIsDropdownOpen(false); router.push(`/chats/${roomId}/edit`); }}
               >
                 <div className="flex items-center gap-2">
@@ -493,7 +495,8 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
                 </div>
               </button>
               <button 
-                className="w-full text-left font-medium p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-foreground flex items-center transition-colors"
+                className="w-full text-left font-medium p-3 rounded-lg flex items-center transition-colors"
+                style={{ color: 'var(--foreground)' }}
                 onClick={() => { setIsDropdownOpen(false); setShowInviteModal(true); }}
               >
                 <div className="flex items-center gap-2">

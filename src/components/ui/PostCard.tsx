@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageCircle, Heart, Send, ExternalLink, Minimize2, Edit2, Save, X, Plus, Minus, MoreHorizontal, Maximize2, Trash2 } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { MessageCircle, Heart, Send, ExternalLink, Minimize2, Edit2, Save, X, Plus, Minus, MoreHorizontal, Maximize2, Trash2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
@@ -70,6 +71,23 @@ export function PostCard({ board, currentUser }: PostCardProps) {
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
   const [savingEdit, setSavingEdit] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Scroll Lock for Edit Modal
+  useEffect(() => {
+    if (isEditing) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isEditing]);
 
   const [showPostOptions, setShowPostOptions] = useState(false);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
@@ -404,11 +422,10 @@ export function PostCard({ board, currentUser }: PostCardProps) {
   };
 
   return (
-    <div className="card" style={{ transition: 'all 0.3s ease', padding: 0, overflow: 'hidden' }}>
-
+    <div className="card bg-card" style={{ transition: 'all 0.3s ease', padding: 0, overflow: 'hidden', borderBottom: '1px solid var(--border-color)' }}>
       <div
         onClick={!isExpanded && !isEditing ? handleToggleExpand : undefined}
-        style={{ padding: '1rem', cursor: !isExpanded && !isEditing ? 'pointer' : 'default', backgroundColor: isExpanded ? '#f9fafb' : 'white', borderBottom: isExpanded ? '1px solid var(--border-color)' : 'none' }}
+        style={{ padding: '1rem', cursor: !isExpanded && !isEditing ? 'pointer' : 'default', backgroundColor: isExpanded ? 'var(--post-expansion-bg)' : 'transparent', borderBottom: isExpanded ? '1px solid var(--border-color)' : 'none' }}
       >
         <div
           className="flex justify-between items-start mb-2"
@@ -435,30 +452,20 @@ export function PostCard({ board, currentUser }: PostCardProps) {
           </div>
         </div>
 
-        {!isEditing ? (
-          <>
-            <h2 className="text-lg font-bold leading-tight" style={{ margin: 0, padding: 0, paddingBottom: 0, marginBottom: 0, lineHeight: '1.2' }}>
-              {liveTitle}
-            </h2>
-            <div className="flex justify-between items-center mb-3" style={{ marginTop: '0.25rem' }}>
-              <div className="text-xs text-muted flex items-center gap-2">
-                <span>{formatRelativeTime(isEdited ? liveUpdatedAt : board.created_at)}</span>
-                {isEdited && <span className="font-semibold">(편집됨)</span>}
-              </div>
+        <>
+          <h2 className="text-lg font-bold leading-tight" style={{ margin: 0, padding: 0, paddingBottom: 0, marginBottom: 0, lineHeight: '1.2' }}>
+            {liveTitle}
+          </h2>
+          <div className="flex justify-between items-center mb-3" style={{ marginTop: '0.25rem' }}>
+            <div className="text-xs text-muted flex items-center gap-2">
+              <span>{formatRelativeTime(isEdited ? liveUpdatedAt : board.created_at)}</span>
+              {isEdited && <span className="font-semibold">(편집됨)</span>}
             </div>
-          </>
-        ) : (
-          <Input
-            value={editTitle}
-            onChange={(e) => setEditTitle(e.target.value)}
-            className="mb-3 font-bold"
-            placeholder="제목"
-            onClick={(e) => e.stopPropagation()}
-          />
-        )}
+          </div>
+        </>
 
         {/* If not expanded, show truncated summary removing HTML tags safely */}
-        {!isExpanded && !isEditing && (
+        {!isExpanded && (
           <>
             <div
               className="text-sm text-muted mb-4 border-t border-border pt-4"
@@ -485,152 +492,136 @@ export function PostCard({ board, currentUser }: PostCardProps) {
       {isExpanded && (
         <div className="animate-fade-in" style={{ padding: '1rem' }}>
 
-          {isEditing && (
-            <div className="mb-4" style={{ minHeight: '200px' }}>
-              <div className="mb-3">
-                <RichEditor value={editContent} onChange={setEditContent} placeholder="내용 수정..." />
-              </div>
-              <div className="flex justify-end gap-2" style={{ marginTop: '10px' }}>
-                <Button size="sm" variant="ghost" onClick={() => { setIsEditing(false); setEditTitle(liveTitle); setEditContent(liveContent); }}>
-                  <X size={14} /> 취소
-                </Button>
-                <Button size="sm" onClick={handleSaveEdit} disabled={savingEdit}>
-                  {savingEdit ? '저장중...' : <><Save size={14} className="mr-1" /> 저장</>}
-                </Button>
-              </div>
-            </div>
-          )}
-
           {/* Full Content */}
-          {!isEditing && (
-            <div className="mb-8">
-              <div
-                className="post-content ProseMirror"
-                style={{ fontSize: '0.95rem', lineHeight: '1.6', whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'var(--foreground)' }}
-                dangerouslySetInnerHTML={{ __html: liveContent }}
-              />
+          <div className="mb-8">
+            <div
+              className="post-content ProseMirror"
+              style={{ fontSize: '0.95rem', lineHeight: '1.6', whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'var(--foreground)' }}
+              dangerouslySetInnerHTML={{ __html: liveContent }}
+            />
 
-              {/* Board Reactions rendered at the bottom of the post content inline with options */}
-              <div className="mt-6 border-t border-gray-100 pt-4 flex items-center justify-end gap-1">
-                <div style={{ flex: 1 }}>
-                  <ReactionBar
-                    targetType="BOARD"
-                    targetId={board.board_no}
-                    initialReactions={reactions}
-                    currentUser={currentUser}
-                    onReactionsChange={(newReactions) => {
-                      setReactions(newReactions);
-                    }}
-                  />
-                </div>
-                {isExpanded && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowPostOptions(true);
-                    }}
-                    className="text-muted hover:text-foreground p-1 rounded hover:bg-gray-100 transition-colors"
-                  >
-                    <MoreHorizontal size={20} />
-                  </button>
-                )}
+            {/* Board Reactions rendered at the bottom of the post content inline with options */}
+            <div className="mt-6 border-t border-gray-100 pt-4 flex items-center justify-end gap-1">
+              <div style={{ flex: 1 }}>
+                <ReactionBar
+                  targetType="BOARD"
+                  targetId={board.board_no}
+                  initialReactions={reactions}
+                  currentUser={currentUser}
+                  onReactionsChange={(newReactions) => {
+                    setReactions(newReactions);
+                  }}
+                />
               </div>
+              {isExpanded && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowPostOptions(true);
+                  }}
+                  className="text-muted hover:text-foreground p-1 rounded hover:bg-gray-100 transition-colors"
+                >
+                  <MoreHorizontal size={20} />
+                </button>
+              )}
             </div>
-          )}
-
-          {loadingDetails && <div className="text-center text-muted text-sm my-4">댓글 및 반응 불러오는 중...</div>}
-
-          {/* Comments Section */}
-          {!loadingDetails && (
-            <div>
-              <h3 className="font-bold flex items-center gap-2 mb-4 text-sm">
-                <MessageCircle size={16} />
-                댓글 ({comments.length})
-              </h3>
-
-              <div className="flex flex-col gap-4 mb-4" style={{ maxHeight: '18rem', overflowY: 'auto', paddingRight: '0.5rem' }}>
-                {comments.length === 0 ? (
-                  <div className="text-center text-muted text-sm py-2">첫 댓글을 작성해보세요.</div>
-                ) : (
-                  <>
-                    {comments.map(c => (
-                      <div key={c.comment_no} className="flex gap-3">
-                        <div className="avatar" style={{ width: '2rem', height: '2rem', fontSize: '0.875rem', backgroundColor: 'var(--border-color)', color: 'var(--foreground)' }}>
-                          {c.user_name.charAt(0)}
-                        </div>
-                        <div className="comment-bubble" style={{ flex: 1, position: 'relative', marginBottom: '0.75rem' }}>
-                          <div className="flex justify-between items-start mb-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-sm">{c.user_name}</span>
-                              <span className="text-muted flex items-center gap-1" style={{ fontSize: '0.625rem' }}>
-                                {formatRelativeTime((c.updated_at && new Date(c.updated_at).getTime() - new Date(c.created_at).getTime() > 1000) ? c.updated_at : c.created_at)}
-                                {(c.updated_at && new Date(c.updated_at).getTime() - new Date(c.created_at).getTime() > 1000) && <span className="font-semibold">(편집됨)</span>}
-                              </span>
-                            </div>
-                            <div className="relative">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setActiveCommentModalId(c.comment_no);
-                                }}
-                                className="text-muted hover:text-foreground pl-1 p-1"
-                              >
-                                <MoreHorizontal size={18} />
-                              </button>
-                            </div>
-                          </div>
-
-                          <p className="text-sm" style={{ lineHeight: '1.4', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>{c.content}</p>
-
-                          <div className="absolute right-4" style={{ bottom: '-0.75rem' }}>
-                            <ReactionBar
-                              targetType="COMMENT"
-                              targetId={c.comment_no}
-                              initialReactions={c.reactions || []}
-                              currentUser={currentUser}
-                              onReactionsChange={(newReactions) => {
-                                setComments(prev => prev.map(comment =>
-                                  comment.comment_no === c.comment_no
-                                    ? { ...comment, reactions: newReactions }
-                                    : comment
-                                ));
-                              }}
-                            />
-                          </div>
-
-                        </div>
-                      </div>
-                    ))}
-                    {/* Infinite Scroll Trigger for Comments */}
-                    {hasMoreComments && (
-                      <div ref={observerTarget} className="text-center text-sm text-muted py-2">
-                        {loadingMoreComments ? '더 불러오는 중...' : '스크롤하여 더 보기'}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-
-              {/* Comment Input Bar (Triggers Modal) */}
-              <div 
-                onClick={() => setIsAddingComment(true)}
-                className="flex items-center gap-2 bg-gray-50 p-2 px-4 rounded-full border border-border cursor-pointer transition-colors hover:bg-gray-100"
-              >
-                <span className="text-sm flex-1 text-left" style={{ color: 'var(--text-muted)' }}>댓글 입력...</span>
-                <Button size="icon" variant="ghost" disabled style={{ borderRadius: '50%', width: '30px', height: '30px', flexShrink: 0 }}>
-                  <Send size={14} className="text-muted" />
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Close expanded view button inside */}
-          <div className="mt-3 text-center">
-            <Button variant="ghost" onClick={handleToggleExpand} className="text-muted w-full flex justify-center items-end gap-2">
-              <Minimize2 size={16} /> 접기
-            </Button>
           </div>
 
+          {/* Comments Section and Close Button (Integrated into bottom dark area) */}
+          <div style={{ backgroundColor: 'var(--post-expansion-bg)', padding: '1rem 1rem 0.5rem 1rem', marginLeft: '-1rem', marginRight: '-1rem', marginBottom: '-1rem', borderTop: '1px solid var(--border-color)', borderBottomLeftRadius: '0.5rem', borderBottomRightRadius: '0.5rem' }}>
+            {loadingDetails && <div className="text-center text-muted text-sm my-4">댓글 및 반응 불러오는 중...</div>}
+
+            {!loadingDetails && (
+              <div>
+                <h3 className="font-bold flex items-center gap-2 mb-4 text-sm">
+                  <MessageCircle size={16} />
+                  댓글 ({comments.length})
+                </h3>
+
+                <div className="flex flex-col gap-4 mb-4" style={{ maxHeight: '18rem', overflowY: 'auto', paddingRight: '0.5rem' }}>
+                  {comments.length === 0 ? (
+                    <div className="text-center text-muted text-sm py-2">첫 댓글을 작성해보세요.</div>
+                  ) : (
+                    <>
+                      {comments.map(c => (
+                        <div key={c.comment_no} className="flex gap-3">
+                          <div className="avatar" style={{ width: '2rem', height: '2rem', fontSize: '0.875rem', backgroundColor: 'var(--border-color)', color: 'var(--foreground)' }}>
+                            {c.user_name.charAt(0)}
+                          </div>
+                          <div className="comment-bubble" style={{ flex: 1, position: 'relative', marginBottom: '0.75rem' }}>
+                            <div className="flex justify-between items-start mb-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-sm">{c.user_name}</span>
+                                <span className="text-muted flex items-center gap-1" style={{ fontSize: '0.625rem' }}>
+                                  {formatRelativeTime((c.updated_at && new Date(c.updated_at).getTime() - new Date(c.created_at).getTime() > 1000) ? c.updated_at : c.created_at)}
+                                  {(c.updated_at && new Date(c.updated_at).getTime() - new Date(c.created_at).getTime() > 1000) && <span className="font-semibold">(편집됨)</span>}
+                                </span>
+                              </div>
+                              <div className="relative">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveCommentModalId(c.comment_no);
+                                  }}
+                                  className="text-muted hover:text-foreground pl-1 p-1"
+                                >
+                                  <MoreHorizontal size={18} />
+                                </button>
+                              </div>
+                            </div>
+
+                            <p className="text-sm" style={{ lineHeight: '1.4', wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>{c.content}</p>
+
+                            <div className="absolute right-4" style={{ bottom: '-0.75rem' }}>
+                              <ReactionBar
+                                targetType="COMMENT"
+                                targetId={c.comment_no}
+                                initialReactions={c.reactions || []}
+                                currentUser={currentUser}
+                                onReactionsChange={(newReactions) => {
+                                  setComments(prev => prev.map(comment =>
+                                    comment.comment_no === c.comment_no
+                                      ? { ...comment, reactions: newReactions }
+                                      : comment
+                                  ));
+                                }}
+                              />
+                            </div>
+
+                          </div>
+                        </div>
+                      ))}
+                      {/* Infinite Scroll Trigger for Comments */}
+                      {hasMoreComments && (
+                        <div ref={observerTarget} className="text-center text-sm text-muted py-2">
+                          {loadingMoreComments ? '더 불러오는 중...' : '스크롤하여 더 보기'}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Comment Input Bar (Triggers Modal) */}
+                <div
+                  onClick={() => setIsAddingComment(true)}
+                  className="flex items-center gap-2 p-2 px-4 rounded-full cursor-pointer transition-colors"
+                  style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
+                >
+                  <span className="text-sm flex-1 text-left text-muted">댓글 입력...</span>
+                  <Button size="icon" variant="ghost" disabled style={{ borderRadius: '50%', width: '30px', height: '30px', flexShrink: 0 }}>
+                    <Send size={14} className="text-muted" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Close expanded view button inside */}
+            <div className="mt-3 text-center">
+              <Button variant="ghost" onClick={handleToggleExpand} className="text-muted w-full flex justify-center items-end gap-2" style={{ padding: '0.5rem' }}>
+                <Minimize2 size={16} /> 접기
+              </Button>
+            </div>
+          </div> {/* CLOSE NEW WRAPPER */}
         </div>
       )}
 
@@ -654,10 +645,10 @@ export function PostCard({ board, currentUser }: PostCardProps) {
                         fontSize: '1.75rem', padding: '0.5rem', cursor: 'pointer',
                         borderRadius: '50%',
                         border: hasSelected ? '1px solid var(--primary)' : '1px solid transparent',
-                        backgroundColor: hasSelected ? 'rgba(91, 95, 199, 0.15)' : '#f9fafb',
+                        backgroundColor: hasSelected ? 'rgba(91, 95, 199, 0.15)' : 'var(--background)',
                         transition: 'transform 0.1s, background-color 0.2s'
                       }}
-                      className={hasSelected ? 'active:scale-90' : 'hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-90'}
+                      className={hasSelected ? 'active:scale-90' : 'active:scale-90'}
                     >
                       {emotion.icon}
                     </button>
@@ -717,10 +708,10 @@ export function PostCard({ board, currentUser }: PostCardProps) {
                     fontSize: '1.75rem', padding: '0.5rem', cursor: 'pointer',
                     borderRadius: '50%',
                     border: hasSelected ? '1px solid var(--primary)' : '1px solid transparent',
-                    backgroundColor: hasSelected ? 'rgba(91, 95, 199, 0.15)' : '#f9fafb',
+                    backgroundColor: hasSelected ? 'rgba(91, 95, 199, 0.15)' : 'var(--background)',
                     transition: 'transform 0.1s, background-color 0.2s'
                   }}
-                  className={hasSelected ? 'active:scale-90' : 'hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-90'}
+                  className={hasSelected ? 'active:scale-90' : 'active:scale-90'}
                 >
                   {emotion.icon}
                 </button>
@@ -737,8 +728,8 @@ export function PostCard({ board, currentUser }: PostCardProps) {
                   setEditContent(liveContent);
                   setIsEditing(true);
                 }}
-                className="w-full text-left font-medium hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded flex items-center gap-2"
-                style={{ fontSize: '1rem', padding: '0.8rem 1rem' }}
+                className="w-full text-left font-medium p-2 rounded flex items-center gap-2 transition-colors"
+                style={{ fontSize: '1rem', padding: '0.8rem 1rem', color: 'var(--foreground)' }}
               >
                 <Edit2 size={18} className="text-primary" />
                 수정
@@ -789,6 +780,7 @@ export function PostCard({ board, currentUser }: PostCardProps) {
           <div style={{ marginTop: '0.5rem' }}>
             <Textarea
               className="w-full border border-border rounded p-3 text-sm focus:outline-none focus:border-primary text-foreground"
+              style={{ backgroundColor: 'var(--background)' }}
               rows={3}
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
@@ -815,6 +807,7 @@ export function PostCard({ board, currentUser }: PostCardProps) {
           <div style={{ marginTop: '0.5rem' }}>
             <Textarea
               className="w-full border border-border rounded p-3 text-sm focus:outline-none focus:border-primary text-foreground"
+              style={{ backgroundColor: 'var(--background)' }}
               rows={3}
               value={editingCommentContent}
               onChange={(e) => setEditingCommentContent(e.target.value)}
@@ -832,6 +825,51 @@ export function PostCard({ board, currentUser }: PostCardProps) {
         }}
       />
 
+      {/* Edit Component Floating Modal (Matches New Post Modal) */}
+      {mounted && isEditing && createPortal(
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99990, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyItems: 'center', padding: '1rem' }}>
+
+          {/* Inner Modal Card */}
+          <div className="mx-auto" style={{ position: 'relative', backgroundColor: 'var(--card-bg)', width: '100%', maxWidth: '42rem', height: '85vh', borderRadius: '1rem', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}>
+
+            <header className="shrink-0 pt-4 px-4 border-b" style={{ borderColor: 'var(--border-color)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <button onClick={() => { setIsEditing(false); setEditTitle(liveTitle); setEditContent(liveContent); }} className="text-muted"><ArrowLeft size={24} /></button>
+              <h1 className="text-xl font-bold flex-1 text-center">게시글 수정</h1>
+              <div style={{ width: 24 }} />
+            </header>
+
+            <div className="flex-1 overflow-auto p-4 flex flex-col gap-4" style={{ paddingBottom: '6rem' }}>
+              <input
+                placeholder="제목을 입력하세요"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className="form-input"
+                style={{ fontWeight: 'bold', fontSize: '1.25rem', height: '3.5rem', border: 'none', borderBottom: '1px solid var(--border-color)', borderRadius: '0', padding: '0.5rem 0', backgroundColor: 'transparent', color: 'var(--foreground)' }}
+              />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '300px' }}>
+                <RichEditor
+                  value={editContent}
+                  onChange={setEditContent}
+                  placeholder="내용을 작성해주세요..."
+                />
+              </div>
+            </div>
+
+            <div className="p-4 border-t" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, borderColor: 'var(--border-color)', display: 'flex', justifyContent: 'center', backgroundColor: 'var(--card-bg)', zIndex: 10 }}>
+              <Button
+                onClick={handleSaveEdit}
+                disabled={savingEdit || !editTitle.trim() || editContent === '<p><br></p>' || !editContent}
+                className="btn btn-primary"
+                style={{ width: '100%', height: '3.5rem', fontSize: '1rem', fontWeight: 'bold', borderRadius: '1rem' }}
+              >
+                {savingEdit ? '저장 중...' : '게시글 수정하기'}
+              </Button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* Global Style for content */}
       <style jsx global>{`
         .post-content img {
@@ -839,6 +877,16 @@ export function PostCard({ board, currentUser }: PostCardProps) {
           height: auto;
           border-radius: 0.5rem;
           margin: 1rem 0;
+        }
+        .post-content pre {
+          white-space: pre-wrap !important;
+          word-wrap: break-word !important;
+          word-break: break-word !important;
+          overflow-x: hidden !important;
+        }
+        .post-content code {
+          white-space: pre-wrap !important;
+          word-break: break-word !important;
         }
       `}</style>
     </div>

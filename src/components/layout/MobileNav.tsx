@@ -123,6 +123,8 @@ export function MobileNav() {
 
   if (pathname === '/login') return null;
 
+  const isChatDetailOrCreate = pathname.startsWith('/chats/') && pathname !== '/chats';
+
   const openSidebar = () => {
     fetchMenus();
     setIsSidebarOpen(true);
@@ -133,8 +135,9 @@ export function MobileNav() {
 
   return (
     <>
-      <nav className="mobile-nav">
-        <Link href="/notifications" className={cn("nav-item", pathname === '/notifications' && "active")} style={{ position: 'relative' }}>
+      {!isChatDetailOrCreate && (
+        <nav className="mobile-nav">
+          <Link href="/notifications" className={cn("nav-item", pathname === '/notifications' && "active")} style={{ position: 'relative' }}>
           <Bell size={24} fill={pathname === '/notifications' ? "currentColor" : "none"} strokeWidth={pathname === '/notifications' ? 1.5 : 2} />
           <span className="nav-item-text">알림</span>
           {unreadNotifs > 0 && (
@@ -165,7 +168,8 @@ export function MobileNav() {
             <div style={{ position: 'absolute', top: '0.75rem', right: '50%', transform: 'translate(100%, -50%)', width: '5px', height: '5px', backgroundColor: '#ef4444', borderRadius: '50%', zIndex: 10 }} />
           )}
         </button>
-      </nav>
+        </nav>
+      )}
 
       {/* Overlay */}
       <div

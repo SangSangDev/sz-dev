@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { RichEditor } from '@/components/ui/RichEditor';
 import { PostCard } from '@/components/ui/PostCard';
 import { RollupPopup } from '@/components/ui/RollupPopup';
+import { FabMenu, FabMenuItem } from '@/components/ui/FabMenu';
 
 type BoardInfo = {
   board_no: string;
@@ -31,13 +32,24 @@ export default function BoardFeedPage({ params }: { params: Promise<{ boardCode:
 
   // Editor States
   const [showEditor, setShowEditor] = useState(false);
-  const [showFabMenu, setShowFabMenu] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [posting, setPosting] = useState(false);
 
   const router = useRouter();
+
+  // Scroll Lock for Editor Modal
+  useEffect(() => {
+    if (showEditor) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showEditor]);
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -61,7 +73,7 @@ export default function BoardFeedPage({ params }: { params: Promise<{ boardCode:
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!pullStartY.current || isRefreshing) return;
-    
+
     // Only allow pulling down if we are at the top
     if (window.scrollY > 0) {
       pullStartY.current = 0;
@@ -75,7 +87,7 @@ export default function BoardFeedPage({ params }: { params: Promise<{ boardCode:
     if (dy > 0) {
       // Prevent default scrolling when pulling down
       if (e.cancelable) e.preventDefault();
-      
+
       // Apply friction so it feels elastic (max pull distance approx 80px)
       const distance = Math.min(dy * 0.4, 80);
       setPullDistance(distance);
@@ -86,14 +98,14 @@ export default function BoardFeedPage({ params }: { params: Promise<{ boardCode:
 
   const handleTouchEnd = () => {
     if (!pullStartY.current || isRefreshing) return;
-    
+
     pullStartY.current = 0;
-    
+
     // If pulled more than 60px, trigger refresh
     if (pullDistance > 60) {
       setIsRefreshing(true);
       setPullDistance(60); // lock at 60px while refreshing
-      
+
       setPage(1);
       setHasMore(true);
       loadBoards(1, false).finally(() => {
@@ -229,8 +241,8 @@ export default function BoardFeedPage({ params }: { params: Promise<{ boardCode:
 
 
   return (
-    <div 
-      className="flex flex-col min-h-screen" 
+    <div
+      className="flex flex-col min-h-screen"
       style={{ backgroundColor: 'var(--background)' }}
     >
       <header className="header shrink-0" style={{ zIndex: 10 }}>
@@ -259,7 +271,7 @@ export default function BoardFeedPage({ params }: { params: Promise<{ boardCode:
       >
         {/* Pull To Refresh Indicator */}
         {pullDistance > 0 && (
-          <div 
+          <div
             style={{
               position: 'absolute',
               top: 0,
@@ -273,12 +285,12 @@ export default function BoardFeedPage({ params }: { params: Promise<{ boardCode:
               opacity: Math.min(pullDistance / 60, 1),
             }}
           >
-            <RefreshCw 
-              size={24} 
-              className={`text-blue-500 ${isRefreshing ? 'animate-spin' : ''}`} 
-              style={{ 
-                transform: isRefreshing ? 'none' : `rotate(${pullDistance * 2}deg)` 
-              }} 
+            <RefreshCw
+              size={24}
+              className={`text-blue-500 ${isRefreshing ? 'animate-spin' : ''}`}
+              style={{
+                transform: isRefreshing ? 'none' : `rotate(${pullDistance * 2}deg)`
+              }}
             />
           </div>
         )}
@@ -298,36 +310,36 @@ export default function BoardFeedPage({ params }: { params: Promise<{ boardCode:
           onTouchEnd={handleTouchEnd}
         >
 
-        {loading && page === 1 ? (
-          <div className="p-6 text-center text-muted mt-8">게시물을 불러오는 중입니다...</div>
-        ) : boards.length === 0 ? (
-          <div className="text-center text-muted mt-8">작성된 글이 없습니다.</div>
-        ) : (
-          boards.map((board) => (
-            <PostCard key={board.board_no} board={board} currentUser={currentUser} />
-          ))
-        )}
+          {loading && page === 1 ? (
+            <div className="p-6 text-center text-muted mt-8">게시물을 불러오는 중입니다...</div>
+          ) : boards.length === 0 ? (
+            <div className="text-center text-muted mt-8">작성된 글이 없습니다.</div>
+          ) : (
+            boards.map((board) => (
+              <PostCard key={board.board_no} board={board} currentUser={currentUser} />
+            ))
+          )}
 
-        {/* Infinite Scroll Trigger */}
-        {hasMore && (
-          <div ref={observerTarget} className="h-10 flex items-center justify-center text-muted text-sm py-4">
-            {loadingMore ? '더 불러오는 중...' : ''}
-          </div>
-        )}
-        {!hasMore && boards.length > 0 && (
-          <div className="text-center text-muted text-sm py-6">모든 게시물을 확인했습니다.</div>
-        )}
+          {/* Infinite Scroll Trigger */}
+          {hasMore && (
+            <div ref={observerTarget} className="h-10 flex items-center justify-center text-muted text-sm py-4">
+              {loadingMore ? '더 불러오는 중...' : ''}
+            </div>
+          )}
+          {!hasMore && boards.length > 0 && (
+            <div className="text-center text-muted text-sm py-6">모든 게시물을 확인했습니다.</div>
+          )}
         </div>
       </div>
 
       {/* Fixed Scroll To Top Button Wrapper */}
       <div
-        className="z-50"
         style={{
           position: 'fixed',
           left: 0,
           right: 0,
-          bottom: '9rem', /* Positioned above the FAB button */
+          bottom: '9.5rem', /* Positioned above the FAB button */
+          zIndex: 50,
           width: '100%',
           maxWidth: '1200px',
           margin: '0 auto',
@@ -346,9 +358,9 @@ export default function BoardFeedPage({ params }: { params: Promise<{ boardCode:
               width: '3.5rem',
               height: '3.5rem',
               borderRadius: '50%',
-              backgroundColor: 'white',
-              color: 'var(--text-muted)',
-              border: '1px solid var(--border-color)',
+              backgroundColor: 'var(--border-color)',
+              color: 'var(--foreground)',
+              border: '1px solid var(--text-muted)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -361,102 +373,65 @@ export default function BoardFeedPage({ params }: { params: Promise<{ boardCode:
           </button>
         )}
       </div>
-      {/* Fullscreen Post Creator Modal */}
+      {/* Floating Centered Post Creator Modal */}
       {showEditor && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column' }}>
-          <header className="header shrink-0 bg-white" style={{ zIndex: 110 }}>
-            <div className="flex items-center gap-3 w-full">
-              <button onClick={() => setShowEditor(false)} className="text-muted" style={{ padding: '0.25rem' }}>
-                <ArrowLeft size={24} />
-              </button>
-              <h1 className="text-xl font-bold flex-1">새로운 글 작성</h1>
-              <div style={{ width: 24 }} />
-            </div>
-          </header>
-          
-          <div className="p-4 flex-1 overflow-auto flex flex-col gap-4 max-w-3xl w-full mx-auto" style={{ backgroundColor: 'white', marginTop: '1rem', borderRadius: '0.5rem', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-            <input
-              placeholder="제목을 입력하세요"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              className="form-input"
-              style={{ fontWeight: 'bold', fontSize: '1.25rem', height: '3.5rem', border: 'none', borderBottom: '1px solid var(--border-color)', borderRadius: '0', padding: '0.5rem 0' }}
-            />
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '300px' }}>
-              <RichEditor
-                value={newContent}
-                onChange={setNewContent}
-                placeholder="내용을 작성해주세요..."
-              />
-            </div>
-          </div>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyItems: 'center', padding: '1rem' }}>
 
-          {/* Fixed Bottom Action Button for Editor */}
-          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(8px)', borderTop: '1px solid var(--border-color)', zIndex: 120, display: 'flex', justifyContent: 'center', boxShadow: '0 -10px 20px -10px rgba(0,0,0,0.05)', paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
-            <Button 
-              onClick={handlePost}
-              disabled={posting || !newTitle.trim() || newContent === '<p><br></p>' || !newContent}
-              className="btn btn-primary"
-              style={{ width: '100%', maxWidth: '42rem', height: '3.5rem', fontSize: '1rem', fontWeight: 'bold', borderRadius: '1rem', boxShadow: '0 4px 6px -1px rgba(91, 95, 199, 0.2)' }}
-            >
-              {posting ? '게시 중...' : '게시글 등록하기'}
-            </Button>
+          {/* Inner Modal Card */}
+          <div className="mx-auto" style={{ position: 'relative', backgroundColor: 'var(--card-bg)', width: '100%', maxWidth: '42rem', height: '85vh', borderRadius: '1rem', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}>
+
+            <header className="shrink-0 pt-4 px-4 border-b" style={{ borderColor: 'var(--border-color)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <button onClick={() => setShowEditor(false)} className="text-muted"><ArrowLeft size={24} /></button>
+              <h1 className="text-xl font-bold flex-1 text-center">새로운 글 작성</h1>
+              <div style={{ width: 24 }} />
+            </header>
+
+            <div className="flex-1 overflow-auto p-4 flex flex-col gap-4" style={{ paddingBottom: '6rem' }}>
+              <input
+                placeholder="제목을 입력하세요"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                className="form-input"
+                style={{ fontWeight: 'bold', fontSize: '1.25rem', height: '3.5rem', border: 'none', borderBottom: '1px solid var(--border-color)', borderRadius: '0', padding: '0.5rem 0', backgroundColor: 'transparent', color: 'var(--foreground)' }}
+              />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '300px' }}>
+                <RichEditor
+                  value={newContent}
+                  onChange={setNewContent}
+                  placeholder="내용을 작성해주세요..."
+                />
+              </div>
+            </div>
+
+            <div className="p-4 border-t" style={{ position: 'absolute', bottom: 0, left: 0, right: 0, borderColor: 'var(--border-color)', display: 'flex', justifyContent: 'center', backgroundColor: 'var(--card-bg)', zIndex: 10 }}>
+              <Button
+                onClick={handlePost}
+                disabled={posting || !newTitle.trim() || newContent === '<p><br></p>' || !newContent}
+                className="btn btn-primary"
+                style={{ width: '100%', height: '3.5rem', fontSize: '1rem', fontWeight: 'bold', borderRadius: '1rem' }}
+              >
+                {posting ? '게시 중...' : '게시글 등록하기'}
+              </Button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Floating Action Button (FAB) and Menu */}
-      {showFabMenu && (
-        <div 
-          className="animate-fade-in"
-          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 40, backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(2px)' }} 
-          onClick={() => setShowFabMenu(false)} 
+      <FabMenu>
+        <FabMenuItem
+          onClick={() => setShowEditor(true)}
+          label="새글쓰기"
+          icon={<Edit3 size={16} color="var(--primary)" />}
         />
-      )}
-      <div 
-        style={{
-          position: 'fixed',
-          bottom: '5rem',
-          right: '1.5rem',
-          zIndex: 50,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-end',
-          gap: '0.75rem'
-        }}
-      >
-        {/* Expanded Menu Options */}
-        {showFabMenu && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-end', animation: 'slideUp 0.15s ease-out' }}>
-            <button 
-              onClick={() => {
-                setShowFabMenu(false);
-                setShowEditor(true);
-              }}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'white', padding: '0.75rem 1rem', borderRadius: '2rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', color: 'var(--foreground)', border: 'none', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}
-            >
-              <span>새글쓰기</span>
-              <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', backgroundColor: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Edit3 size={16} color="var(--primary)" />
-              </div>
-            </button>
-          </div>
-        )}
-
-        {/* Main + Button */}
-        <button 
-          onClick={() => setShowFabMenu(!showFabMenu)}
-          style={{ width: '3.5rem', height: '3.5rem', borderRadius: '50%', backgroundColor: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', boxShadow: '0 10px 15px -3px rgba(99, 102, 241, 0.4), 0 4px 6px -2px rgba(99, 102, 241, 0.2)', transition: 'transform 0.2s', transform: showFabMenu ? 'rotate(45deg)' : 'none' }}
-        >
-          <Plus size={28} strokeWidth={2.5} />
-        </button>
-      </div>
+      </FabMenu>
 
       {/* Board Options RollupPopup */}
       <RollupPopup isOpen={isDropdownOpen} onClose={() => setIsDropdownOpen(false)}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <button 
-            className="w-full text-left font-medium p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-foreground flex items-center transition-colors"
+          <button
+            className="w-full text-left font-medium p-3 rounded-lg flex items-center transition-colors"
+            style={{ color: 'var(--foreground)' }}
             onClick={() => { setIsDropdownOpen(false); router.push(`/menus/${boardCode}/edit`); }}
           >
             <div className="flex items-center gap-2">

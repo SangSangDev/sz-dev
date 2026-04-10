@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, Lock, Folder, FileText, RefreshCw, MoreHorizontal, Check, ChevronUp, ChevronDown, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { RollupPopup } from '@/components/ui/RollupPopup';
+import { FabMenu, FabMenuItem } from '@/components/ui/FabMenu';
 
 type CategoryInfo = {
   menu_no: string;
@@ -29,8 +30,7 @@ export default function DashboardPage() {
   const [isReordering, setIsReordering] = useState(false);
   const [savingOrder, setSavingOrder] = useState(false);
 
-  // FAB Menu States
-  const [showFabMenu, setShowFabMenu] = useState(false);
+  // (Removed FAB Menu States since they are now handled by FabMenu)
 
   // Pull-to-Refresh States
   const [pullDistance, setPullDistance] = useState(0);
@@ -304,58 +304,21 @@ export default function DashboardPage() {
 
       {/* Floating Action Button (FAB) and Menu - Only show if user has write permission */}
       {hasWritePermission && (
-        <>
-          {showFabMenu && (
-            <div 
-              className="animate-fade-in"
-              style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 40, backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(2px)' }} 
-              onClick={() => setShowFabMenu(false)} 
-            />
-          )}
-          <div 
-            style={{
-              position: 'fixed',
-              bottom: '5rem',
-              right: '1.5rem',
-              zIndex: 50,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-end',
-              gap: '0.75rem'
-            }}
-          >
-            {/* Expanded Menu Options */}
-            {showFabMenu && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-end', animation: 'slideUp 0.15s ease-out' }}>
-                <Link 
-                  href="/menus/create"
-                  onClick={() => setShowFabMenu(false)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', backgroundColor: 'white', padding: '0.75rem 1rem', borderRadius: '2rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', color: 'var(--foreground)', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem' }}
-                >
-                  <span>새 게시판 만들기</span>
-                  <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', backgroundColor: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Folder size={16} color="var(--primary)" />
-                  </div>
-                </Link>
-              </div>
-            )}
-
-            {/* Main + Button */}
-            <button 
-              onClick={() => setShowFabMenu(!showFabMenu)}
-              style={{ width: '3.5rem', height: '3.5rem', borderRadius: '50%', backgroundColor: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer', boxShadow: '0 10px 15px -3px rgba(99, 102, 241, 0.4), 0 4px 6px -2px rgba(99, 102, 241, 0.2)', transition: 'transform 0.2s', transform: showFabMenu ? 'rotate(45deg)' : 'none' }}
-            >
-              <Plus size={28} strokeWidth={2.5} />
-            </button>
-          </div>
-        </>
+        <FabMenu>
+          <FabMenuItem 
+            href="/menus/create"
+            label="새 게시판 만들기"
+            icon={<Folder size={16} color="var(--primary)" />}
+          />
+        </FabMenu>
       )}
 
       {/* Manage Sort Menu Modal */}
       <RollupPopup isOpen={showSortModal} onClose={() => setShowSortModal(false)}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
           <button 
-            className="w-full text-left font-medium p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-foreground flex items-center justify-between transition-colors"
+            className="w-full text-left font-medium p-3 rounded-lg flex items-center justify-between transition-colors"
+            style={{ color: 'var(--foreground)' }}
             onClick={() => { setShowSortModal(false); setIsReordering(true); }}
           >
             <div className="flex items-center gap-2">

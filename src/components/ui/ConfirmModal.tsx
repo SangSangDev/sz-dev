@@ -36,6 +36,18 @@ export function ConfirmModal({
     setMounted(true);
   }, []);
 
+  // Disable background scatter scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
   if (!mounted) return null;
 
@@ -53,10 +65,10 @@ export function ConfirmModal({
       animation: 'fadeIn 0.2s ease-out'
     }}>
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: 'var(--card-bg)',
         borderRadius: '1rem',
-        width: '100%',
-        maxWidth: '24rem',
+        width: '92%',
+        maxWidth: '28rem',
         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         overflow: 'hidden',
         animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
@@ -79,12 +91,12 @@ export function ConfirmModal({
         </div>
         
         {/* Body */}
-        <div style={{ padding: '1.5rem', fontSize: '0.9375rem', color: '#4b5563', lineHeight: 1.6 }}>
+        <div style={{ padding: '1.5rem', fontSize: '0.9375rem', color: 'var(--foreground)', lineHeight: 1.6 }}>
           {message}
         </div>
         
         {/* Footer */}
-        <div style={{ padding: '1rem 1.5rem', backgroundColor: '#f9fafb', borderTop: '1px solid var(--border-color)', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+        <div style={{ padding: '1rem 1.5rem', backgroundColor: 'transparent', borderTop: '1px solid var(--border-color)', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', borderBottomLeftRadius: '1rem', borderBottomRightRadius: '1rem' }}>
           {onCancel && (
             <Button 
               variant="ghost" 
