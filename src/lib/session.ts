@@ -44,7 +44,8 @@ export async function createSession(user: SessionUser) {
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, sessionId, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    // secure: process.env.NODE_ENV === 'production', // [개발용 HTTP 임시 주석처리] 추후 HTTPS 도입 시 이 줄을 살리고 아래를 지우세요.
+    secure: false,
     sameSite: 'lax',
     path: '/',
     maxAge: SESSION_EXPIRY,
