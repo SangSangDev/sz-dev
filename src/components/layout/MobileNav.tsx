@@ -124,6 +124,9 @@ export function MobileNav() {
   if (pathname === '/login') return null;
 
   const isChatDetailOrCreate = pathname.startsWith('/chats/') && pathname !== '/chats';
+  const isMenuEdit = pathname.startsWith('/menus/') && pathname.endsWith('/edit');
+  const isMenuCreate = pathname === '/menus/create';
+  const hideMobileNav = isChatDetailOrCreate || isMenuEdit || isMenuCreate;
 
   const openSidebar = () => {
     fetchMenus();
@@ -135,7 +138,7 @@ export function MobileNav() {
 
   return (
     <>
-      {!isChatDetailOrCreate && (
+      {!hideMobileNav && (
         <nav className="mobile-nav">
           <Link href="/notifications" className={cn("nav-item", pathname === '/notifications' && "active")} style={{ position: 'relative' }}>
           <Bell size={24} fill={pathname === '/notifications' ? "currentColor" : "none"} strokeWidth={pathname === '/notifications' ? 1.5 : 2} />

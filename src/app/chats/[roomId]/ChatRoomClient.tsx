@@ -22,9 +22,10 @@ interface ChatRoomClientProps {
   roomType?: string;
   createdBy?: string;
   currentUser: { user_id: string; user_name: string };
+  participantIds: string[];
 }
 
-export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', createdBy, currentUser }: ChatRoomClientProps) {
+export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', createdBy, currentUser, participantIds }: ChatRoomClientProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -42,6 +43,7 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [users, setUsers] = useState<{ user_id: string; login_id: string; user_name: string }[]>([]);
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
+  const [currentParticipants, setCurrentParticipants] = useState<Set<string>>(new Set(participantIds));
   const [isSearching, setIsSearching] = useState(false);
   const [isInviting, setIsInviting] = useState(false);
 
@@ -122,6 +124,11 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
       if (!res.ok) throw new Error('Failed to invite users');
 
       window.dispatchEvent(new CustomEvent('show_toast', { detail: { message: '사용자를 초대했습니다.', type: 'success' } }));
+
+      // Update local participants state so they appear disabled immediately
+      const newParticipants = new Set(currentParticipants);
+      selectedUserIds.forEach(id => newParticipants.add(id));
+      setCurrentParticipants(newParticipants);
 
       setShowInviteModal(false);
       setSelectedUserIds(new Set());
@@ -385,7 +392,7 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
                 <UserPlus size={22} style={{ color: 'var(--primary)' }} />
                 사용자 초대
               </h2>
-              <button onClick={() => setShowInviteModal(false)} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>
+              <button onClick={() => setShowInviteModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
                 <X size={24} />
               </button>
             </div>
@@ -394,24 +401,25 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
             <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, overflowY: 'auto' }}>
               {/* Search Box */}
               <div style={{ position: 'relative' }}>
-                <Search size={20} color="#9ca3af" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                <Search size={20} style={{ color: 'var(--text-muted)', position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                 <input
                   type="text"
+                  className="form-input"
                   placeholder="이름 또는 아이디로 검색"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{ width: '100%', padding: '0.875rem 1rem 0.875rem 2.75rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)', backgroundColor: 'rgba(243, 244, 246, 0.5)', fontSize: '1rem' }}
+                  style={{ width: '100%', padding: '0.875rem 1rem 0.875rem 2.75rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--foreground)', fontSize: '1rem' }}
                 />
               </div>
 
               {/* User List */}
-              <div style={{ flex: 1, border: '1px solid var(--border-color)', borderRadius: '0.75rem', backgroundColor: '#fff', overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: '16rem' }}>
+              <div style={{ flex: 1, border: '1px solid var(--border-color)', borderRadius: '0.75rem', backgroundColor: 'var(--card-bg)', overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: '16rem' }}>
                 {isSearching ? (
                   <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <Loader2 className="animate-spin text-muted" size={24} />
                   </div>
                 ) : users.length === 0 ? (
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#9ca3af', gap: '0.5rem', padding: '2rem' }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'var(--text-muted)', gap: '0.5rem', padding: '2rem' }}>
                     <Users size={32} />
                     <p style={{ fontSize: '0.9rem' }}>검색 결과가 없습니다.</p>
                   </div>
@@ -419,33 +427,48 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
                   <div style={{ overflowY: 'auto', flex: 1 }}>
                     {users.map(user => {
                       if (user.user_id === currentUser.user_id) return null; // Can't invite self
+                      const isAlreadyParticipant = currentParticipants.has(user.user_id);
                       const isSelected = selectedUserIds.has(user.user_id);
                       return (
                         <div
                           key={user.user_id}
-                          onClick={() => toggleUserSelection(user.user_id)}
+                          onClick={() => {
+                            if (!isAlreadyParticipant) toggleUserSelection(user.user_id);
+                          }}
                           style={{
-                            display: 'flex', alignItems: 'center', padding: '0.875rem 1rem', borderBottom: '1px solid var(--border-color)', cursor: 'pointer',
-                            backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.05)' : 'white', transition: 'background-color 0.15s'
+                            display: 'flex', alignItems: 'center', padding: '0.875rem 1rem', borderBottom: '1px solid var(--border-color)', 
+                            cursor: isAlreadyParticipant ? 'not-allowed' : 'pointer',
+                            opacity: isAlreadyParticipant ? 0.6 : 1,
+                            backgroundColor: isSelected ? 'var(--post-expansion-bg)' : 'transparent', transition: 'background-color 0.15s'
                           }}
                         >
                           <div style={{
-                            width: '2.5rem', height: '2.5rem', borderRadius: '50%', backgroundColor: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)',
+                            width: '2.5rem', height: '2.5rem', borderRadius: '50%', 
+                            backgroundColor: isAlreadyParticipant ? 'var(--border-color)' : 'rgba(99, 102, 241, 0.1)', 
+                            color: isAlreadyParticipant ? 'var(--text-muted)' : 'var(--primary)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1rem', marginRight: '1rem', flexShrink: 0
                           }}>
                             {user.user_name.charAt(0)}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--foreground)' }}>{user.user_name}</div>
-                            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>@{user.login_id}</div>
+                            <div style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--foreground)' }}>
+                              {user.user_name}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>@{user.login_id}</div>
                           </div>
 
-                          <div style={{
-                            width: '1.5rem', height: '1.5rem', borderRadius: '50%', border: isSelected ? 'none' : '1px solid #d1d5db',
-                            backgroundColor: isSelected ? 'var(--primary)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
-                          }}>
-                            {isSelected && <Check size={14} color="white" strokeWidth={3} />}
-                          </div>
+                          {isAlreadyParticipant ? (
+                            <span style={{ fontSize: '0.8125rem', fontWeight: 'bold', color: 'var(--text-muted)', backgroundColor: 'var(--border-color)', padding: '0.25rem 0.5rem', borderRadius: '1rem' }}>
+                              참여 중
+                            </span>
+                          ) : (
+                            <div style={{
+                              width: '1.5rem', height: '1.5rem', borderRadius: '50%', border: isSelected ? 'none' : '2px solid var(--border-color)',
+                              backgroundColor: isSelected ? 'var(--primary)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                            }}>
+                              {isSelected && <Check size={14} color="white" strokeWidth={3} />}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -455,12 +478,12 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
             </div>
 
             {/* Modal Footer */}
-            <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border-color)', backgroundColor: '#f9fafb', display: 'flex', gap: '0.75rem' }}>
+            <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--card-bg)', display: 'flex', gap: '0.75rem' }}>
               <button
                 type="button"
                 onClick={() => setShowInviteModal(false)}
                 disabled={isInviting}
-                style={{ flex: 1, padding: '0.875rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)', backgroundColor: 'white', color: '#4b5563', fontWeight: 600, cursor: 'pointer' }}
+                style={{ flex: 1, padding: '0.875rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)', backgroundColor: 'var(--card-bg)', color: 'var(--foreground)', fontWeight: 600, cursor: 'pointer' }}
               >
                 취소
               </button>
@@ -468,7 +491,7 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
                 type="button"
                 onClick={handleInviteMembers}
                 disabled={selectedUserIds.size === 0 || isInviting}
-                style={{ flex: 1, padding: '0.875rem', borderRadius: '0.75rem', border: 'none', backgroundColor: selectedUserIds.size === 0 ? '#9ca3af' : 'var(--primary)', color: 'white', fontWeight: 600, cursor: selectedUserIds.size === 0 ? 'not-allowed' : 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
+                style={{ flex: 1, padding: '0.875rem', borderRadius: '0.75rem', border: 'none', backgroundColor: selectedUserIds.size === 0 ? 'var(--text-muted)' : 'var(--primary)', color: 'white', fontWeight: 600, cursor: selectedUserIds.size === 0 ? 'not-allowed' : 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
               >
                 {isInviting ? <Loader2 size={18} className="animate-spin" /> : <UserPlus size={18} />}
                 {selectedUserIds.size > 0 ? `${selectedUserIds.size}명 초대하기` : '초대하기'}

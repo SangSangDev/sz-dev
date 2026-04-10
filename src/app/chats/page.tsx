@@ -370,11 +370,11 @@ export default function ChatsPage() {
       {/* Direct Message (1:1) Search Modal */}
       {showDirectModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', animation: 'fadeIn 0.2s ease-out', padding: '1rem' }}>
-          <div style={{ backgroundColor: 'white', borderRadius: '1rem', width: '100%', maxWidth: '28rem', maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', overflow: 'hidden', animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)', position: 'relative' }}>
+          <div style={{ backgroundColor: 'var(--card-bg)', borderRadius: '1rem', width: '100%', maxWidth: '28rem', maxHeight: '90vh', display: 'flex', flexDirection: 'column', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', overflow: 'hidden', animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)', position: 'relative' }}>
 
             {/* Loading Overlay when joining room */}
             {isCreatingDirect && (
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, backgroundColor: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, backgroundColor: 'var(--card-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '0.5rem' }}>
                 <Loader2 className="animate-spin text-primary" size={40} />
                 <span style={{ fontWeight: 'bold', color: 'var(--primary)' }}>채팅방 이동 중...</span>
               </div>
@@ -389,7 +389,7 @@ export default function ChatsPage() {
               <button
                 onClick={() => setShowDirectModal(false)}
                 disabled={isCreatingDirect}
-                style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
               >
                 <X size={24} />
               </button>
@@ -398,23 +398,24 @@ export default function ChatsPage() {
             {/* Modal Body */}
             <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, overflowY: 'auto' }}>
               <div style={{ position: 'relative' }}>
-                <Search size={20} color="#9ca3af" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                <Search size={20} style={{ color: 'var(--text-muted)', position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                 <input
                   type="text"
+                  className="form-input"
                   placeholder="아이디 또는 이름으로 검색하세요"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{ width: '100%', padding: '0.875rem 1rem 0.875rem 2.75rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)', backgroundColor: 'rgba(243, 244, 246, 0.5)', fontSize: '1rem' }}
+                  style={{ width: '100%', padding: '0.875rem 1rem 0.875rem 2.75rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)', backgroundColor: 'transparent', color: 'var(--foreground)', fontSize: '1rem' }}
                 />
               </div>
 
-              <div style={{ flex: 1, border: '1px solid var(--border-color)', borderRadius: '0.75rem', backgroundColor: '#fff', overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: '16rem' }}>
+              <div style={{ flex: 1, border: '1px solid var(--border-color)', borderRadius: '0.75rem', backgroundColor: 'var(--card-bg)', overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: '16rem' }}>
                 {isSearching ? (
                   <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <Loader2 className="animate-spin text-muted" size={24} />
                   </div>
                 ) : users.length === 0 ? (
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#9ca3af', gap: '0.5rem', padding: '2rem' }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'var(--text-muted)', gap: '0.5rem', padding: '2rem' }}>
                     <Users size={32} />
                     <p style={{ fontSize: '0.9rem' }}>검색 결과가 없습니다.</p>
                   </div>
@@ -425,8 +426,10 @@ export default function ChatsPage() {
                         key={user.user_id}
                         onClick={() => handleStartDirectChat(user.user_id)}
                         style={{
-                          display: 'flex', alignItems: 'center', padding: '0.875rem 1rem', borderBottom: '1px solid var(--border-color)', cursor: 'pointer', backgroundColor: 'white', transition: 'background-color 0.15s'
+                          display: 'flex', alignItems: 'center', padding: '0.875rem 1rem', borderBottom: '1px solid var(--border-color)', cursor: 'pointer', backgroundColor: 'transparent', transition: 'background-color 0.15s'
                         }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--post-expansion-bg)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       >
                         <div style={{
                           width: '2.5rem', height: '2.5rem', borderRadius: '50%', backgroundColor: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)',
@@ -436,7 +439,7 @@ export default function ChatsPage() {
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--foreground)' }}>{user.user_name}</div>
-                          <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>@{user.login_id}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>@{user.login_id}</div>
                         </div>
                       </div>
                     ))}

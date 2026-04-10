@@ -32,5 +32,20 @@ export default async function ChatRoomPage({ params }: { params: Promise<{ roomI
   const roomType = room ? room.room_type : 'PUBLIC';
   const createdBy = room ? room.created_by : null;
 
-  return <ChatRoomClient roomId={roomId} roomName={roomName} roomType={roomType} createdBy={createdBy} currentUser={{ user_id: session.user_id, user_name: session.user_name }} />;
+  const [members] = await db.query<RowDataPacket[]>(
+    `SELECT user_id FROM T_CHAT_MEMBER WHERE room_no = ?`,
+    [roomId]
+  );
+  const participantIds = members.map(m => m.user_id);
+
+  return (
+    <ChatRoomClient 
+      roomId={roomId} 
+      roomName={roomName} 
+      roomType={roomType} 
+      createdBy={createdBy} 
+      currentUser={{ user_id: session.user_id, user_name: session.user_name }} 
+      participantIds={participantIds}
+    />
+  );
 }

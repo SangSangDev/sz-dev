@@ -92,9 +92,9 @@ export default function CreateChatPage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingBottom: '8rem', backgroundColor: '#f3f4f6', position: 'relative' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingBottom: '8rem', backgroundColor: 'var(--background)', position: 'relative' }}>
       {/* Header */}
-      <header className="header shrink-0 bg-white" style={{ zIndex: 10 }}>
+      <header className="header shrink-0" style={{ zIndex: 10 }}>
         <Link href="/chats" style={{ color: 'var(--text-muted)' }}>
           <ChevronLeft size={26} strokeWidth={2.5} />
         </Link>
@@ -105,20 +105,22 @@ export default function CreateChatPage() {
       <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         {/* Room Name Input */}
         <section>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: '#374151', marginBottom: '0.625rem' }}>채팅방 이름</label>
-          <input 
-            placeholder="멋진 채팅방 이름을 지어주세요" 
-            value={roomName}
-            onChange={(e) => setRoomName(e.target.value)}
-            className="form-input"
-            style={{ height: '3rem', fontSize: '0.9375rem', backgroundColor: 'white' }}
-          />
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: 'var(--foreground)', marginBottom: '0.625rem' }}>채팅방 이름</label>
+          <div style={{ backgroundColor: 'var(--card-bg)', borderRadius: '1rem', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }}>
+            <Input 
+              placeholder="멋진 채팅방 이름을 지어주세요" 
+              value={roomName}
+              onChange={(e) => setRoomName(e.target.value)}
+              className="form-input"
+              style={{ height: '3rem', fontSize: '0.9375rem', border: 'none', backgroundColor: 'transparent', color: 'var(--foreground)' }}
+            />
+          </div>
         </section>
 
         {/* User Search & Selection */}
         <section style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.625rem' }}>
-            <label style={{ fontSize: '0.875rem', fontWeight: 'bold', color: '#374151', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+            <label style={{ fontSize: '0.875rem', fontWeight: 'bold', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
               <Users size={16} color="var(--primary)" /> 
               대화 상대 초대
             </label>
@@ -127,18 +129,18 @@ export default function CreateChatPage() {
             </span>
           </div>
           
-          <div style={{ position: 'relative', marginBottom: '0.75rem' }}>
+          <div style={{ position: 'relative', marginBottom: '0.75rem', backgroundColor: 'var(--card-bg)', borderRadius: '1rem', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }}>
             <Search style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} size={18} />
-            <input 
+            <Input 
               placeholder="이름이나 아이디로 검색..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="form-input"
-              style={{ paddingLeft: '2.5rem', backgroundColor: 'white' }}
+              style={{ paddingLeft: '2.5rem', backgroundColor: 'transparent', border: 'none', color: 'var(--foreground)' }}
             />
           </div>
 
-          <div style={{ backgroundColor: 'white', border: '1px solid var(--border-color)', borderRadius: '1rem', maxHeight: '50vh', overflowY: 'auto', width: '100%', display: 'flex', flexDirection: 'column', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }}>
+          <div style={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '1rem', maxHeight: '50vh', overflowY: 'auto', width: '100%', display: 'flex', flexDirection: 'column', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }}>
             {isLoading ? (
               <div style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
                 <Users size={32} style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
@@ -156,12 +158,12 @@ export default function CreateChatPage() {
                   <div 
                     key={user.user_id} 
                     onClick={() => toggleUserSelection(user.user_id)}
-                    style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '0.875rem', borderBottom: '1px solid var(--border-color)', cursor: 'pointer', backgroundColor: isSelected ? '#f9fafb' : 'white', transition: 'background-color 0.2s' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isSelected ? '#f9fafb' : 'white'}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', padding: '0.875rem', borderBottom: '1px solid var(--border-color)', cursor: 'pointer', backgroundColor: isSelected ? 'var(--post-expansion-bg)' : 'transparent', transition: 'background-color 0.2s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--post-expansion-bg)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = isSelected ? 'var(--post-expansion-bg)' : 'transparent'}
                   >
                     {/* Checkbox */}
-                    <div style={{ width: '1.25rem', height: '1.25rem', borderRadius: '50%', border: isSelected ? '2px solid var(--primary)' : '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: isSelected ? 'var(--primary)' : 'white' }}>
+                    <div style={{ width: '1.25rem', height: '1.25rem', borderRadius: '50%', border: isSelected ? '2px solid var(--primary)' : '2px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: isSelected ? 'var(--primary)' : 'transparent' }}>
                       {isSelected && <Check size={12} strokeWidth={4} color="white" />}
                     </div>
                     {/* User Avatar */}
@@ -181,7 +183,7 @@ export default function CreateChatPage() {
       </div>
 
       {/* Fixed Bottom Action Button */}
-      <div style={{ position: 'fixed', bottom: '4rem', left: 0, right: 0, padding: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(8px)', borderTop: '1px solid var(--border-color)', zIndex: 20, display: 'flex', justifyContent: 'center', boxShadow: '0 -10px 20px -10px rgba(0,0,0,0.05)' }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '1rem', paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))', backgroundColor: 'var(--card-bg)', borderTop: '1px solid var(--border-color)', zIndex: 20, display: 'flex', justifyContent: 'center', boxShadow: '0 -10px 20px -10px rgba(0,0,0,0.05)' }}>
         <Button 
           onClick={handleCreateRoom}
           disabled={!roomName.trim() || selectedUserIds.size === 0}

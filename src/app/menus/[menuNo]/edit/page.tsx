@@ -54,8 +54,8 @@ export default function EditMenuPage({ params }: { params: Promise<{ menuNo: str
 
   if (initialLoading) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
-        <header className="header shrink-0 bg-white" style={{ zIndex: 10 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: 'var(--background)' }}>
+        <header className="header shrink-0" style={{ zIndex: 10 }}>
           <button onClick={() => router.back()} style={{ color: 'var(--text-muted)' }}>
             <ArrowLeft size={26} strokeWidth={2.5} />
           </button>
@@ -70,8 +70,8 @@ export default function EditMenuPage({ params }: { params: Promise<{ menuNo: str
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingBottom: '8rem', backgroundColor: '#f3f4f6', position: 'relative' }}>
-      <header className="header shrink-0 bg-white" style={{ zIndex: 10 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingBottom: '8rem', backgroundColor: 'var(--background)', position: 'relative' }}>
+      <header className="header shrink-0" style={{ zIndex: 10 }}>
         <button onClick={() => router.back()} style={{ color: 'var(--text-muted)' }}>
           <ArrowLeft size={26} strokeWidth={2.5} />
         </button>
@@ -81,20 +81,20 @@ export default function EditMenuPage({ params }: { params: Promise<{ menuNo: str
 
       <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <section>
-          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: '#374151', marginBottom: '0.625rem' }}>게시판 이름</label>
-          <div style={{ backgroundColor: 'white', borderRadius: '1rem', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }}>
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 'bold', color: 'var(--foreground)', marginBottom: '0.625rem' }}>게시판 이름</label>
+          <div style={{ backgroundColor: 'var(--card-bg)', borderRadius: '1rem', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }}>
             <Input 
               placeholder="예: 공지사항"
               value={menuName}
               onChange={(e) => setMenuName(e.target.value)}
               className="form-input"
-              style={{ height: '3rem', fontSize: '0.9375rem', border: 'none', backgroundColor: 'transparent' }}
+              style={{ height: '3rem', fontSize: '0.9375rem', border: 'none', backgroundColor: 'transparent', color: 'var(--foreground)' }}
             />
           </div>
         </section>
 
         <section>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'white', borderRadius: '1rem', padding: '1.25rem', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--card-bg)', borderRadius: '1rem', padding: '1.25rem', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }}>
             <div>
               <div style={{ fontSize: '0.9375rem', fontWeight: 'bold', color: 'var(--foreground)', marginBottom: '0.25rem' }}>공개 게시판</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>누구나 대시보드에서 이 게시판을 볼 수 있습니다.</div>
@@ -108,7 +108,7 @@ export default function EditMenuPage({ params }: { params: Promise<{ menuNo: str
                 width: '3rem', 
                 height: '1.75rem', 
                 borderRadius: '9999px',
-                backgroundColor: isPublic ? 'var(--primary)' : '#d1d5db',
+                backgroundColor: isPublic ? 'var(--primary)' : 'var(--text-muted)',
                 position: 'relative',
                 transition: 'background-color 0.2s',
                 border: 'none',
@@ -121,7 +121,7 @@ export default function EditMenuPage({ params }: { params: Promise<{ menuNo: str
                 width: '1.375rem',
                 height: '1.375rem',
                 borderRadius: '50%',
-                backgroundColor: 'white',
+                backgroundColor: '#ffffff',
                 position: 'absolute',
                 top: '0.1875rem',
                 left: isPublic ? 'calc(100% - 1.5625rem)' : '0.1875rem',
@@ -134,7 +134,7 @@ export default function EditMenuPage({ params }: { params: Promise<{ menuNo: str
       </div>
 
       {/* Fixed Bottom Action Button */}
-      <div style={{ position: 'fixed', bottom: '4rem', left: 0, right: 0, padding: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(8px)', borderTop: '1px solid var(--border-color)', zIndex: 20, display: 'flex', justifyContent: 'center', boxShadow: '0 -10px 20px -10px rgba(0,0,0,0.05)' }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '1rem', paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))', backgroundColor: 'var(--card-bg)', borderTop: '1px solid var(--border-color)', zIndex: 20, display: 'flex', justifyContent: 'center', boxShadow: '0 -10px 20px -10px rgba(0,0,0,0.05)' }}>
         <Button 
           onClick={handleSave}
           disabled={loading || !menuName.trim()}
