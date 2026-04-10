@@ -42,11 +42,14 @@ export async function POST(request: Request) {
     const invitedMembers = members.filter(uid => uid !== session.user_id);
     if (invitedMembers.length > 0) {
       try {
+        const inviterName = session.user_name || session.user_id;
+
+        // 1. Publish NEW_ROOM specifically for real-time unread chat count & toast
         const payload = JSON.stringify({
           type: 'NEW_ROOM',
           room_no,
           room_name: roomName,
-          inviter: session.user_name || session.user_id
+          inviter: inviterName
         });
         
         const pipeline = redis.pipeline();
@@ -54,8 +57,20 @@ export async function POST(request: Request) {
           pipeline.publish(`chat:user:${uid}`, payload);
         });
         await pipeline.exec();
+
+        // 2. Dispatch standardized notifications
+        const { sendNotification } = await import('@/lib/notifications');
+        const targetUrl = `/chats/${room_no}`;
+        const message = `${inviterName}님이 '${roomName}' 그룹 채팅방에 초대했습니다.`;
+        
+        await Promise.all(
+          invitedMembers.map(uid => 
+            sendNotification(session.user_id, uid, 'CHAT_INVITE', targetUrl, message)
+          )
+        );
+
       } catch (redisErr) {
-        console.error('Failed to broadcast new room:', redisErr);
+        console.error('Failed to broadcast new room or push notifications:', redisErr);
         // We do not fail the request if redis broadcast fails
       }
     }

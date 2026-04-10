@@ -67,6 +67,28 @@ export async function POST(request: Request, context: unknown) {
       VALUES (?, ?, ?, ?, NOW(), NOW())
     `, [new_id, boardId, session.user_id, content]);
 
+    // Notification Logic
+    const [boardInfo] = await db.query<RowDataPacket[]>(`
+      SELECT user_id, board_code FROM T_BOARD WHERE board_no = ?
+    `, [boardId]);
+
+    if (boardInfo.length > 0) {
+      const boardAuthor = boardInfo[0].user_id;
+      const boardCode = boardInfo[0].board_code;
+      
+      if (boardAuthor !== session.user_id) {
+        // Find commenter name
+        const [userRow] = await db.query<RowDataPacket[]>('SELECT user_name FROM T_USER WHERE user_id = ?', [session.user_id]);
+        const userName = userRow[0]?.user_name || session.user_id;
+        
+        const targetUrl = `/boards/${boardCode}/${boardId}`;
+        const message = `${userName}님이 회원님의 게시글에 댓글을 남겼습니다.`;
+        
+        const { sendNotification } = await import('@/lib/notifications');
+        await sendNotification(session.user_id, boardAuthor, 'POST_COMMENT', targetUrl, message);
+      }
+    }
+
     return NextResponse.json({ message: 'Comment created' }, { status: 201 });
   } catch (error) {
     console.error('Create comment error:', error);

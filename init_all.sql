@@ -102,6 +102,20 @@ CREATE TABLE IF NOT EXISTS `T_BOARD_READ_HISTORY` (
   PRIMARY KEY (`user_id`, `board_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='게시판별 사용자 마지막 조회 시간';
 
+-- Notification Table
+CREATE TABLE IF NOT EXISTS `T_NOTIFICATION` (
+  `notif_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FN_GEN_ID() 사용',
+  `user_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '알림을 받는 유저',
+  `actor_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '알림을 발생시킨 유저',
+  `type` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'POST_COMMENT, POST_REACTION, COMMENT_REACTION',
+  `target_url` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `message` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_read` char(1) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'N',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`notif_no`),
+  KEY `idx_notif_user` (`user_id`, `created_at` DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- ────────────────────────────────────────────────────────────
 -- 3. Initial Data Inserts (Moved to Bottom)

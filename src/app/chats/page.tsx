@@ -211,10 +211,19 @@ export default function ChatsPage() {
               flex: 1, padding: '0.875rem 0', fontWeight: 600, fontSize: '0.9375rem',
               color: activeTab === 'PRIVATE' ? 'var(--primary)' : 'var(--text-muted)',
               borderBottom: activeTab === 'PRIVATE' ? '2px solid var(--primary)' : '2px solid transparent',
-              background: 'none', cursor: 'pointer', transition: 'all 0.2s'
+              background: 'none', cursor: 'pointer', transition: 'all 0.2s',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem'
             }}
           >
             개인 채팅 (1:1)
+            {rooms.filter(r => r.room_type === 'PRIVATE').reduce((acc, r) => acc + (r.unread_count || 0), 0) > 0 && (
+              <span style={{
+                backgroundColor: 'var(--danger)', color: 'white', fontSize: '0.7rem', fontWeight: 'bold',
+                padding: '0.1rem 0.35rem', borderRadius: '1rem', lineHeight: 1
+              }}>
+                {rooms.filter(r => r.room_type === 'PRIVATE').reduce((acc, r) => acc + (r.unread_count || 0), 0)}
+              </span>
+            )}
           </button>
           <button
             onClick={() => setActiveTab('PUBLIC')}
@@ -222,10 +231,19 @@ export default function ChatsPage() {
               flex: 1, padding: '0.875rem 0', fontWeight: 600, fontSize: '0.9375rem',
               color: activeTab === 'PUBLIC' ? 'var(--primary)' : 'var(--text-muted)',
               borderBottom: activeTab === 'PUBLIC' ? '2px solid var(--primary)' : '2px solid transparent',
-              background: 'none', cursor: 'pointer', transition: 'all 0.2s'
+              background: 'none', cursor: 'pointer', transition: 'all 0.2s',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem'
             }}
           >
             그룹 채팅
+            {rooms.filter(r => r.room_type === 'PUBLIC').reduce((acc, r) => acc + (r.unread_count || 0), 0) > 0 && (
+              <span style={{
+                backgroundColor: 'var(--danger)', color: 'white', fontSize: '0.7rem', fontWeight: 'bold',
+                padding: '0.1rem 0.35rem', borderRadius: '1rem', lineHeight: 1
+              }}>
+                {rooms.filter(r => r.room_type === 'PUBLIC').reduce((acc, r) => acc + (r.unread_count || 0), 0)}
+              </span>
+            )}
           </button>
         </div>
       </header>
@@ -285,7 +303,15 @@ export default function ChatsPage() {
                       <span>{room.room_name.charAt(0)}</span>
                       {/* Unread Badge */}
                       {room.unread_count > 0 && (
-                        <div className="badge-danger" style={{ position: 'absolute', top: '-0.25rem', right: '-0.25rem' }}>
+                        <div style={{ 
+                          position: 'absolute', top: '-0.25rem', right: '-0.25rem',
+                          backgroundColor: 'var(--danger)', color: 'white',
+                          fontSize: '0.7rem', fontWeight: 'bold',
+                          height: '1.25rem', minWidth: '1.25rem',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          borderRadius: '1rem', padding: '0 0.25rem',
+                          border: '2px solid var(--card-bg)'
+                         }}>
                           {room.unread_count > 99 ? '99+' : room.unread_count}
                         </div>
                       )}

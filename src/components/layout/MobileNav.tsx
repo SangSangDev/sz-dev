@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Menu, X, MessageCircle } from 'lucide-react';
+import { Home, Menu, X, MessageCircle, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MenuInfo } from '@/lib/session';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { showToast } from '@/lib/toast';
 
 type CurrentUser = {
   user_id: string;
@@ -20,6 +21,7 @@ export function MobileNav() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [unreadTotal, setUnreadTotal] = useState(0);
+  const [unreadNotifs, setUnreadNotifs] = useState(0);
   const [showKickoutModal, setShowKickoutModal] = useState(false);
 
   const fetchMenus = async () => {
@@ -52,6 +54,15 @@ export function MobileNav() {
           setUnreadTotal(total);
         }
       });
+
+    // Fetch unread notifications count
+    fetch('/api/notifications/unread-count')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && typeof data.count === 'number') {
+          setUnreadNotifs(data.count);
+        }
+      });
   }, [pathname]);
 
   // Global Real-time Stream
@@ -72,14 +83,7 @@ export function MobileNav() {
 
           // Custom Toast for new invite
           if (!pathname.startsWith('/chats')) {
-            window.dispatchEvent(
-              new CustomEvent('show_toast', {
-                detail: {
-                  message: `새로운 채팅 초대!\n${payload.inviter}님이 '${payload.room_name}' 방에 초대했습니다.`,
-                  type: 'success',
-                },
-              })
-            );
+            showToast(`새로운 채팅 초대!\n${payload.inviter}님이 '${payload.room_name}' 방에 초대했습니다.`, 'success');
           }
         } else if (payload.type === 'NEW_MESSAGE') {
           // If we are currently in that same room, we are actively reading it, so don't increase unread total globally.
@@ -90,6 +94,8 @@ export function MobileNav() {
           }
           // Broadcast to other components (like chats page)
           window.dispatchEvent(new CustomEvent('chat_update', { detail: payload }));
+        } else if (payload.type === 'NEW_NOTIFICATION') {
+          setUnreadNotifs(prev => prev + 1);
         } else if (payload.type === 'KICKOUT') {
           // Concurrent login handled!
           eventSource.close();
@@ -104,14 +110,7 @@ export function MobileNav() {
     eventSource.onerror = () => {
       console.error('SSE Connection Error: Redis might be down.');
       if (!errorAlerted) {
-        window.dispatchEvent(
-          new CustomEvent('show_toast', {
-            detail: {
-              message: '실시간 서버 연결 실패\n새로운 채팅 알림 기능이 일시 중단됩니다.',
-              type: 'error',
-            },
-          })
-        );
+        showToast('실시간 서버 연결 실패\n새로운 채팅 알림 기능이 일시 중단됩니다.', 'error');
         errorAlerted = true;
       }
       eventSource.close(); // Prevent infinite reconnect attempts spamming the failing server
@@ -135,6 +134,16 @@ export function MobileNav() {
   return (
     <>
       <nav className="mobile-nav">
+        <Link href="/notifications" className={cn("nav-item", pathname === '/notifications' && "active")} style={{ position: 'relative' }}>
+          <Bell size={24} fill={pathname === '/notifications' ? "currentColor" : "none"} strokeWidth={pathname === '/notifications' ? 1.5 : 2} />
+          <span className="nav-item-text">알림</span>
+          {unreadNotifs > 0 && (
+            <div className="badge-danger" style={{ position: 'absolute', top: '0.95rem', right: '47%', transform: 'translate(100%, -50%)', zIndex: 10, fontSize: '0.625rem', padding: '0 0.25rem', minWidth: '1.125rem', height: '1.125rem' }}>
+              {unreadNotifs > 99 ? '99+' : unreadNotifs}
+            </div>
+          )}
+        </Link>
+        
         <Link href="/dashboard" className={cn("nav-item", pathname === '/dashboard' && "active")}>
           <Home size={24} fill={pathname === '/dashboard' ? "currentColor" : "none"} strokeWidth={pathname === '/dashboard' ? 1.5 : 2} />
           <span className="nav-item-text">대시보드</span>

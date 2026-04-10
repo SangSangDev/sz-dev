@@ -1,17 +1,27 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { MessageSquareText } from 'lucide-react';
+import { MessageSquareText, Check } from 'lucide-react';
 
 export default function LoginPage() {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberId, setRememberId] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Load saved ID if exists
+    const saved = localStorage.getItem('savedUserId');
+    if (saved) {
+      setUserId(saved);
+      setRememberId(true);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +40,13 @@ export default function LoginPage() {
         throw new Error(errorData.error || 'Failed to login');
       }
 
+      // Handle remember ID
+      if (rememberId) {
+        localStorage.setItem('savedUserId', userId);
+      } else {
+        localStorage.removeItem('savedUserId');
+      }
+
       router.push('/dashboard');
       router.refresh();
     } catch (err: any) {
@@ -40,38 +57,171 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-wrapper bg-background">
-      <div className="login-box">
-        <div className="flex items-center justify-center mb-4" style={{ width: '3rem', height: '3rem', backgroundColor: 'var(--primary)', borderRadius: '0.75rem' }}>
-          <MessageSquareText color="white" size={24} />
-        </div>
-        <h1 className="text-2xl font-bold mb-2 text-center">Welcome to Board</h1>
-        <p className="text-muted text-sm mb-8 text-center">Sign in with your account</p>
+    <div className="modern-login-wrapper">
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .modern-login-wrapper {
+          min-height: 100vh;
+          width: 100vw;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: var(--background);
+          padding: 1rem;
+          position: relative;
+        }
 
-        <form onSubmit={handleLogin} className="w-full flex-col gap-4">
-          <div className="mb-4">
+        .glass-box {
+          position: relative;
+          z-index: 1;
+          width: 100%;
+          max-width: 400px;
+          background: var(--card-bg);
+          border: 1px solid var(--border-color);
+          border-radius: 1.5rem;
+          padding: 2.5rem;
+          box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+          color: var(--foreground);
+        }
+
+        .custom-input {
+          background: var(--background) !important;
+          border: 1px solid var(--border-color) !important;
+          color: var(--foreground) !important;
+          border-radius: 0.75rem !important;
+          padding: 0.75rem 1rem !important;
+          transition: all 0.3s ease !important;
+        }
+        .custom-input:focus {
+          border-color: var(--primary) !important;
+          box-shadow: 0 0 0 2px rgba(91, 95, 199, 0.2) !important;
+          outline: none;
+        }
+
+        .custom-button {
+          background: var(--primary) !important;
+          color: #ffffff !important;
+          font-weight: 700 !important;
+          border-radius: 0.75rem !important;
+          padding: 0.75rem !important;
+          font-size: 1rem !important;
+          transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s !important;
+          border: none !important;
+        }
+        .custom-button:hover:not(:disabled) {
+          transform: translateY(-2px) !important;
+          box-shadow: 0 5px 15px -5px var(--primary) !important;
+        }
+        .custom-button:active:not(:disabled) {
+          transform: translateY(0) !important;
+        }
+        
+        .checkbox-container {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          cursor: pointer;
+          font-size: 0.875rem;
+          color: var(--text-muted);
+          user-select: none;
+        }
+        .custom-checkbox {
+          width: 1.25rem;
+          height: 1.25rem;
+          border-radius: 0.375rem;
+          border: 2px solid var(--border-color);
+          background: var(--background);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+        .checkbox-container input {
+          display: none;
+        }
+        .checkbox-container input:checked + .custom-checkbox {
+          background: var(--primary);
+          border-color: var(--primary);
+        }
+        .checkbox-container input:checked + .custom-checkbox svg {
+          opacity: 1;
+          transform: scale(1);
+        }
+        .custom-checkbox svg {
+          stroke: #ffffff;
+          opacity: 0;
+          transform: scale(0.5);
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .icon-wrapper {
+          position: relative;
+          width: 4rem;
+          height: 4rem;
+          background: var(--primary);
+          border-radius: 1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 1.5rem auto;
+          box-shadow: 0 8px 24px -6px var(--primary);
+        }
+      `}} />
+
+      <div className="glass-box">
+        <div className="icon-wrapper">
+          <MessageSquareText color="white" size={32} strokeWidth={1.5} />
+        </div>
+
+        <h1 className="text-3xl font-bold mb-2 text-center" style={{ letterSpacing: '-0.02em', color: 'var(--foreground)' }}>
+          SZ WORKS
+        </h1>
+        <p className="text-center mb-10" style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+          welcome to sz works
+        </p>
+
+        <form onSubmit={handleLogin} className="flex flex-col" style={{ gap: '1.7rem' }}>
+          <div>
             <Input
               type="text"
-              placeholder="Username"
+              placeholder="아이디"
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
+              className="custom-input"
               required
             />
           </div>
-          <div className="mb-4">
+          <div>
             <Input
               type="password"
-              placeholder="Password"
+              placeholder="비밀번호"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="custom-input"
               required
             />
           </div>
 
-          {error && <p className="text-center mb-4" style={{color: 'var(--danger)', fontSize: '0.875rem'}}>{error}</p>}
+          <label className="checkbox-container">
+            <input
+              type="checkbox"
+              checked={rememberId}
+              onChange={(e) => setRememberId(e.target.checked)}
+            />
+            <div className="custom-checkbox">
+              <Check size={14} strokeWidth={3} />
+            </div>
+            아이디 저장
+          </label>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+          {error && (
+            <p className="text-center" style={{ color: 'var(--danger)', fontSize: '0.875rem', fontWeight: 500, background: 'rgba(239, 68, 68, 0.1)', padding: '0.5rem', borderRadius: '0.5rem', marginTop: '-0.5rem' }}>
+              {error}
+            </p>
+          )}
+
+          <Button type="submit" className="custom-button w-full" disabled={loading} style={{ marginTop: '0.5rem' }}>
+            {loading ? '로그인 중...' : '로그인'}
           </Button>
         </form>
       </div>

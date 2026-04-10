@@ -13,7 +13,9 @@ export async function GET(request: Request, context: unknown) {
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const [rows] = await db.query<RowDataPacket[]>(`
-      SELECT b.board_no, b.board_code, b.title, b.content, b.user_id, b.created_at, b.updated_at, u.user_name
+      SELECT b.board_no, b.board_code, b.title, b.content, b.user_id, b.created_at, b.updated_at, u.user_name,
+             (SELECT COUNT(*) FROM T_COMMENT c WHERE c.board_no = b.board_no AND c.del_yn = 'N') as comment_count,
+             (SELECT COUNT(*) FROM T_REACTION r WHERE r.target_type = 'BOARD' AND r.target_no = b.board_no) as reaction_count
       FROM T_BOARD b
       JOIN T_USER u ON b.user_id = u.user_id
       WHERE b.board_no = ? AND b.del_yn = 'N'

@@ -41,6 +41,32 @@ export async function POST(request: Request, context: unknown) {
         VALUES (?, 'COMMENT', ?, ?, ?, NOW())
       `, [new_id, commentId, session.user_id, emotion]);
       action = 'ADD';
+
+      // Notification Logic
+      const [commentInfo] = await db.query<RowDataPacket[]>(`
+        SELECT c.user_id, b.board_code, b.board_no 
+        FROM T_COMMENT c 
+        JOIN T_BOARD b ON c.board_no = b.board_no 
+        WHERE c.comment_no = ?
+      `, [commentId]);
+
+      if (commentInfo.length > 0) {
+        const commentAuthor = commentInfo[0].user_id;
+        const boardCode = commentInfo[0].board_code;
+        const boardNo = commentInfo[0].board_no;
+        
+        if (commentAuthor !== session.user_id) {
+          const [userRow] = await db.query<RowDataPacket[]>('SELECT user_name FROM T_USER WHERE user_id = ?', [session.user_id]);
+          const userName = userRow[0]?.user_name || session.user_id;
+          
+          // Navigate to board, normally people just scroll manually to comment but sending to board is fine 
+          const targetUrl = `/boards/${boardCode}/${boardNo}`;
+          const message = `${userName}님이 회원님의 댓글에 이모지를 남겼습니다.`;
+          
+          const { sendNotification } = await import('@/lib/notifications');
+          await sendNotification(session.user_id, commentAuthor, 'COMMENT_REACTION', targetUrl, message);
+        }
+      }
     }
 
     if (board_no) {

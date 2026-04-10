@@ -30,9 +30,3 @@ When building or modifying user interfaces in this repository, you MUST adhere t
    - Whenever you need to build a slide-up menu or bottom sheet on mobile/desktop, MUST use **`RollupPopup`** (`src/components/ui/RollupPopup.tsx`).
    - It already has swipe-to-dismiss physics, over-pull resistance, and perfectly handles high z-indexing using React Portal. Pass your menu options as `children`.
 <!-- END:ui-agent-rules -->
-
-<!-- BEGIN:turbo-all -->
-// turbo-all
-# 🚀 Command Execution Guidelines
-When executing run_command for safe local environment scripts, use SafeToAutoRun to bypass manual approval windows where applicable, per user requests to avoid freezing.
-<!-- END:turbo-all -->
