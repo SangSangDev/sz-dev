@@ -208,9 +208,6 @@ function ChatsContent() {
   return (
     <div className="flex flex-col min-h-screen pb-20 max-w-2xl mx-auto w-full relative" style={{ backgroundColor: 'var(--background)' }}>
       <header className="header shrink-0" style={{ zIndex: 10, display: 'flex', flexDirection: 'column', height: 'auto', padding: 0, backgroundColor: 'transparent' }}>
-        <div style={{ display: 'flex', alignItems: 'center', height: '3.5rem', padding: '0 1.25rem', backgroundColor: 'var(--background)' }}>
-          <h1 className="text-xl font-bold">채팅</h1>
-        </div>
 
         {/* Tabs */}
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', width: '100%', backgroundColor: 'var(--card-bg)' }}>

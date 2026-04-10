@@ -209,7 +209,7 @@ export default function ChatRoomClient({ roomId, roomName, roomType = 'PUBLIC', 
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100dvh', maxWidth: '42rem', margin: '0 auto', width: '100%', backgroundColor: 'var(--background)', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, display: 'flex', flexDirection: 'column', maxWidth: '42rem', margin: '0 auto', width: '100%', backgroundColor: 'var(--background)' }}>
       {/* Header */}
       <header className="header shrink-0 sticky-header">
         <Link href={`/chats?tab=${roomType}`} className="text-muted">

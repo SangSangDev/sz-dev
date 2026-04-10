@@ -65,7 +65,7 @@ export default function SinglePostPage({ params }: { params: Promise<{ boardCode
   if (loading) {
     return (
       <div className="flex flex-col h-full relative" style={{ backgroundColor: 'var(--background)' }}>
-        <header className="header shrink-0" style={{ zIndex: 10, backgroundColor: 'var(--card-bg)' }}>
+        <header className="header shrink-0" style={{ zIndex: 10, backgroundColor: 'var(--card-bg)', justifyContent: 'flex-start' }}>
           <button onClick={() => router.back()} className="mr-3 text-text-muted hover:text-text p-1">
             <ArrowLeft size={24} />
           </button>
