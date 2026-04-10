@@ -177,8 +177,8 @@ export default function ChatsPage() {
           if (payload.type === 'NEW_MESSAGE') {
             updated[roomIndex] = {
               ...updated[roomIndex],
-              last_message: payload.message,
-              last_message_time: payload.created_at || new Date().toISOString(),
+              last_message: typeof payload.message === 'string' ? payload.message : payload.message?.content,
+              last_message_time: payload.message?.created_at || new Date().toISOString(),
               unread_count: (updated[roomIndex].unread_count || 0) + 1
             };
           }
