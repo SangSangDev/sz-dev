@@ -42,7 +42,7 @@ export default function ChatsPage() {
         const data = await res.json();
         setRooms(data);
       }
-      const meRes = await fetch('/api/users/me');
+      const meRes = await fetch('/api/auth/me');
       if (meRes.ok) {
         const meData = await meRes.json();
         setMyUserId(meData.user.user_id);

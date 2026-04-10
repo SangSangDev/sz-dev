@@ -67,6 +67,8 @@ export async function GET(request: Request, context: { params: Promise<{ roomId:
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache, no-transform',
       'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no',
+      'Content-Encoding': 'none',
     },
   });
 }
