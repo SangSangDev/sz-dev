@@ -231,7 +231,7 @@ export default function BoardFeedPage({ params }: { params: Promise<{ boardCode:
   return (
     <div 
       className="flex flex-col min-h-screen" 
-      style={{ backgroundColor: '#f3f4f6' }}
+      style={{ backgroundColor: 'var(--background)' }}
     >
       <header className="header shrink-0" style={{ zIndex: 10 }}>
         <div className="flex items-center gap-3 w-full justify-between">

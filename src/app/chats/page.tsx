@@ -197,8 +197,8 @@ export default function ChatsPage() {
   const filteredRooms = rooms.filter(r => r.room_type === activeTab);
 
   return (
-    <div className="flex flex-col min-h-screen pb-20 max-w-2xl mx-auto w-full relative" style={{ backgroundColor: '#f3f4f6' }}>
-      <header className="header shrink-0 bg-white" style={{ zIndex: 10, display: 'flex', flexDirection: 'column', height: 'auto', padding: 0 }}>
+    <div className="flex flex-col min-h-screen pb-20 max-w-2xl mx-auto w-full relative" style={{ backgroundColor: 'var(--background)' }}>
+      <header className="header shrink-0" style={{ zIndex: 10, display: 'flex', flexDirection: 'column', height: 'auto', padding: 0, backgroundColor: 'var(--card-bg)' }}>
         <div style={{ display: 'flex', alignItems: 'center', height: '3.5rem', padding: '0 1.25rem' }}>
           <h1 className="text-xl font-bold">채팅</h1>
         </div>
