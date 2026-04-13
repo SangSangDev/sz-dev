@@ -12,12 +12,10 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      # Initialize with existing script
-      - ./init_all.sql:/docker-entrypoint-initdb.d/01_init_all.sql
-      # Custom migration for social features
-      - ./migration_01_social.sql:/docker-entrypoint-initdb.d/02_migration_social.sql
-      # Menu columns update migration
-      - ./migration_02_menu_update.sql:/docker-entrypoint-initdb.d/03_migration_menu_update.sql
+      # Database schema initialization
+      - ./01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      # Base mock data insertion
+      - ./02_data.sql:/docker-entrypoint-initdb.d/02_data.sql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
   redis:

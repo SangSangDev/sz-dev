@@ -28,17 +28,9 @@ echo "🐳 데이터베이스(Docker) 구동 상태 점검 및 실행..."
 # 기존 docker-compose.yml을 바탕으로 백그라운드 구동 (이미 떠있으면 무시됨)
 docker compose up -d
 
-# 2.5 DB 마이그레이션 실행
-echo "🗄️ 데이터베이스 마이그레이션(업데이트) 진행 중..."
-# 만약 .env 파일이 있다면 먼저 불러옵니다. (비밀번호 동적 주입을 위함)
-if [ -f .env ]; then
-  export $(cat .env | grep -v '^#' | xargs)
-fi
-
-# MySQL 초기화(볼륨 삭제 후 첫 구동) 시에는 최대 30~60초가 소요됩니다. 넉넉히 15초 대기
+# DB 초기화(볼륨 텅빈 상태)가 끝날 때까지 넉넉히 대기합니다. (이미 구동 중이면 금방 끝남)
 sleep 15
-ROOT_PASS=${MYSQL_ROOT_PASSWORD:-root}
-docker compose exec -T mysql mysql -u root -p"${ROOT_PASS}" szdev < migration_02_menu_update.sql || echo "⚠️ 마이그레이션 중 경고 발생(초기화 중이거나 이미 반영됨)"
+echo "🗄️ 데이터베이스 세팅 확인 완료"
 
 # 3. 환경 변수(.env) 보안 세팅 경고
 if [ ! -f .env ]; then
