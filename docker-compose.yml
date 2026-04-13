@@ -9,7 +9,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-szdev_password}
       TZ: Asia/Seoul
     ports:
-      - "127.0.0.1:3306:3306" # 127.0.0.1로 바인딩하여 외부 노출 차단
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       # Initialize with existing script
