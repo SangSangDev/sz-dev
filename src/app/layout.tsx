@@ -4,8 +4,8 @@ import { MobileNav } from '@/components/layout/MobileNav';
 import { ToastContainer } from '@/components/ui/ToastContainer';
 
 export const metadata: Metadata = {
-  title: 'Teams Board App',
-  description: 'Mobile compatible teams-like board application',
+  title: 'SZ WORKS',
+  description: 'SZ WORKS',
 };
 
 export const viewport = {

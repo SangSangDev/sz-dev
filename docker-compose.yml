@@ -16,6 +16,8 @@ services:
       - ./init_all.sql:/docker-entrypoint-initdb.d/01_init_all.sql
       # Custom migration for social features
       - ./migration_01_social.sql:/docker-entrypoint-initdb.d/02_migration_social.sql
+      # Menu columns update migration
+      - ./migration_02_menu_update.sql:/docker-entrypoint-initdb.d/03_migration_menu_update.sql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
   redis:
