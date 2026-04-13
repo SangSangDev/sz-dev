@@ -3,13 +3,13 @@ services:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: szdev
-      MYSQL_USER: szdev_user
-      MYSQL_PASSWORD: szdev_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-szdev}
+      MYSQL_USER: ${MYSQL_USER:-szdev_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-szdev_password}
       TZ: Asia/Seoul
     ports:
-      - "127.0.0.1:3306:3306"
+      - "127.0.0.1:3306:3306" # 127.0.0.1로 바인딩하여 외부 노출 차단
     volumes:
       - mysql_data:/var/lib/mysql
       # Initialize with existing script
@@ -24,7 +24,7 @@ services:
     image: redis:alpine
     restart: always
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:6379:6379" # 127.0.0.1로 바인딩하여 외부 노출 차단
     volumes:
       - redis_data:/data
 
