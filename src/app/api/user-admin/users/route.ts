@@ -29,10 +29,15 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    const [rolesList] = await db.query<RowDataPacket[]>('SELECT role_no, role_name FROM T_ROLE ORDER BY role_name ASC');
+
     const [users] = await db.query<RowDataPacket[]>(`
-      SELECT user_no, user_id, email, user_name, is_locked, last_login_at, created_at
-      FROM T_USER
-      ORDER BY created_at DESC
+      SELECT u.user_no, u.user_id, u.email, u.user_name, u.is_locked, u.last_login_at, u.created_at,
+             ur.role_no, r.role_name
+      FROM T_USER u
+      LEFT JOIN T_USER_ROLE ur ON u.user_id = ur.user_id
+      LEFT JOIN T_ROLE r ON ur.role_no = r.role_no
+      ORDER BY u.created_at DESC
     `);
 
     const decryptedUsers = users.map(u => ({
@@ -41,7 +46,7 @@ export async function GET() {
       is_locked: u.is_locked === 1
     }));
 
-    return NextResponse.json({ users: decryptedUsers }, { status: 200 });
+    return NextResponse.json({ users: decryptedUsers, roles: rolesList }, { status: 200 });
   } catch (error) {
     console.error('Fetch users error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

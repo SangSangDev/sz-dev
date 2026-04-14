@@ -124,8 +124,9 @@ export default function SignupPage() {
       <style dangerouslySetInnerHTML={{
         __html: `
         .modern-login-wrapper {
+          flex: 1;
           min-height: 100vh;
-          width: 100vw;
+          width: 100%;
           display: flex;
           align-items: center;
           justify-content: center;

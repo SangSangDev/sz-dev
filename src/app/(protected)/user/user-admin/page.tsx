@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, Users, Lock, Unlock, Mail, Clock, CheckCircle } from 'lucide-react';
+import { ChevronLeft, Users, Lock, Unlock, Mail, Clock, CheckCircle, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { RollupPopup } from '@/components/ui/RollupPopup';
 import { showToast } from '@/lib/toast';
@@ -15,15 +15,24 @@ type UserData = {
   is_locked: boolean;
   last_login_at: string | null;
   created_at: string;
+  role_no?: string;
+  role_name?: string;
+};
+
+type RoleData = {
+  role_no: string;
+  role_name: string;
 };
 
 export default function UserAdminPage() {
   const [users, setUsers] = useState<UserData[]>([]);
+  const [roles, setRoles] = useState<RoleData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
   // Bottom Sheet State
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [editRoleNo, setEditRoleNo] = useState<string>('');
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
 
@@ -36,6 +45,7 @@ export default function UserAdminPage() {
       }
       const data = await res.json();
       setUsers(data.users || []);
+      if (data.roles) setRoles(data.roles);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -49,6 +59,7 @@ export default function UserAdminPage() {
 
   const handleUserClick = (user: UserData) => {
     setSelectedUser(user);
+    setEditRoleNo(user.role_no || '');
     setIsPopupOpen(true);
   };
 
@@ -69,6 +80,37 @@ export default function UserAdminPage() {
       showToast(data.message, 'success');
       setIsPopupOpen(false);
       // Refresh user list
+      fetchUsers();
+    } catch (err) {
+      showToast('서버 오류가 발생했습니다.', 'error');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleRoleChange = async () => {
+    if (!selectedUser || !editRoleNo) return;
+    if (editRoleNo === selectedUser.role_no) {
+      showToast('변경된 역할이 없습니다.', 'info');
+      return;
+    }
+    
+    setProcessing(true);
+    try {
+      const res = await fetch(`/api/user-admin/users/${selectedUser.user_no}/role`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role_no: editRoleNo })
+      });
+      const data = await res.json();
+      
+      if (!res.ok) {
+        showToast(data.error || '역할 변경 중 오류가 발생했습니다.', 'error');
+        return;
+      }
+
+      showToast(data.message, 'success');
+      setIsPopupOpen(false);
       fetchUsers();
     } catch (err) {
       showToast('서버 오류가 발생했습니다.', 'error');
@@ -147,6 +189,14 @@ export default function UserAdminPage() {
                           {user.user_name}
                         </span>
                         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>@{user.user_id}</span>
+                        {user.role_name && (
+                          <span style={{ 
+                            fontSize: '0.65rem', fontWeight: 600, padding: '0.1rem 0.35rem', borderRadius: '0.5rem',
+                            backgroundColor: 'white', color: 'var(--primary)', border: '1px solid var(--primary)', marginLeft: '0.25rem'
+                          }}>
+                            {user.role_name}
+                          </span>
+                        )}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.25rem' }}>
                         <span style={{ 
@@ -206,6 +256,39 @@ export default function UserAdminPage() {
                   : '이 계정을 잠금 처리하면 해당 사용자는 로그인할 수 없게 되며 강제로 차단됩니다.'}
               </p>
             </div>
+
+            {/* Role Assignment UI */}
+            {roles.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0 0.25rem' }}>
+                <label className="text-sm font-semibold flex items-center gap-1">
+                  <Shield size={16} /> 권한 그룹 설정
+                </label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <select 
+                    style={{ 
+                      flex: 1, padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)', 
+                      backgroundColor: 'var(--bg-card)', fontSize: '0.9rem' 
+                    }}
+                    value={editRoleNo}
+                    onChange={(e) => setEditRoleNo(e.target.value)}
+                  >
+                    <option value="" disabled>역할을 선택하세요</option>
+                    {roles.map(r => (
+                      <option key={r.role_no} value={r.role_no}>{r.role_name}</option>
+                    ))}
+                  </select>
+                  <Button 
+                    variant="primary" 
+                    onClick={handleRoleChange} 
+                    disabled={processing || !editRoleNo || editRoleNo === selectedUser.role_no}
+                  >
+                    권한 변경
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            <div style={{ borderTop: '1px solid var(--border-color)', margin: '0.5rem 0' }} />
 
             <Button 
               onClick={toggleLockStatus}
