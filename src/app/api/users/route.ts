@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     const [rows] = await db.query<RowDataPacket[]>(
       `SELECT user_id, user_name, user_id as login_id 
        FROM T_USER 
-       WHERE user_id != ? AND (user_name LIKE ? OR user_id LIKE ?)
+       WHERE user_id != ? AND is_locked = 0 AND (user_name LIKE ? OR user_id LIKE ?)
        ORDER BY user_name ASC`,
       [session.user_id, searchTerm, searchTerm]
     );

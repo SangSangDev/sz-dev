@@ -11,6 +11,7 @@ import { showToast } from '@/lib/toast';
 
 type CurrentUser = {
   user_id: string;
+  email?: string;
   user_name: string;
 };
 
@@ -37,7 +38,6 @@ export function MobileNav() {
   };
 
   useEffect(() => {
-    if (pathname === '/login') return;
     fetchMenus();
 
     // Fetch current user
@@ -67,7 +67,7 @@ export function MobileNav() {
 
   // Global Real-time Stream
   useEffect(() => {
-    if (pathname === '/login' || typeof window === 'undefined') return;
+    if (typeof window === 'undefined') return;
 
     const eventSource = new EventSource('/api/users/me/stream');
 
@@ -120,8 +120,6 @@ export function MobileNav() {
       eventSource.close();
     };
   }, [pathname]);
-
-  if (pathname === '/login') return null;
 
   const isChatDetailOrCreate = pathname.startsWith('/chats/') && pathname !== '/chats';
   const isMenuEdit = pathname.startsWith('/menus/') && pathname.endsWith('/edit');
@@ -215,7 +213,7 @@ export function MobileNav() {
                 {currentUser?.user_name || '로그인 필요'}
               </div>
               <div className="text-muted" style={{ fontSize: '0.8rem' }}>
-                @{currentUser?.user_id || '...'}
+                {currentUser?.email || `@${currentUser?.user_id || '...'}`}
               </div>
             </div>
           </Link>
@@ -250,6 +248,33 @@ export function MobileNav() {
                       N
                     </span>
                   )}
+                </Link>
+              ))}
+            </>
+          )}
+
+          {generalMenus.length > 0 && (
+            <>
+              <div style={{
+                padding: '1rem 1.5rem 0.25rem',
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                color: 'var(--text-muted)',
+                textTransform: 'uppercase',
+              }}>
+                메뉴
+              </div>
+              {generalMenus.map(menu => (
+                <Link
+                  key={menu.menu_no}
+                  href={menu.url || '#'}
+                  className="sidebar-link"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                  onClick={() => setIsSidebarOpen(false)}
+                >
+                  <span style={{ fontSize: '0.875rem' }}>📌</span>
+                  {menu.menu_name}
                 </Link>
               ))}
             </>

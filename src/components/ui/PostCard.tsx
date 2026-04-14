@@ -137,6 +137,14 @@ export function PostCard({ board, currentUser, defaultExpanded = false }: PostCa
     }
   };
 
+  // Auto-fetch details if opened directly via a single-post view or notification
+  useEffect(() => {
+    if (defaultExpanded) {
+      fetchDetails();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Real-time Event Listener for the Board & Comments Reactions
   useEffect(() => {
     if (!isExpanded) return;

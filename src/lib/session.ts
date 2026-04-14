@@ -16,6 +16,7 @@ export type MenuInfo = {
 export type SessionUser = {
   user_no: string;
   user_id: string;
+  email: string;
   user_name: string;
   menus: MenuInfo[];
 };

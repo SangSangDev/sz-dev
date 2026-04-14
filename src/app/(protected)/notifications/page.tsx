@@ -77,24 +77,26 @@ export default function NotificationsPage() {
       </header>
 
       <div style={{ flex: 1, position: 'relative' }}>
-        <div className="p-4" style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem', minHeight: '100%' }}>
+        <div className="p-4" style={{ position: 'absolute', inset: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {loading ? (
-            <div className="empty-state" style={{ height: '10rem' }}>
+            <div className="empty-state" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               잠시만 기다려주세요...
             </div>
           ) : notifications.length === 0 ? (
-            <div className="empty-state" style={{ height: '10rem' }}>
-              <Bell size={48} style={{ marginBottom: '1rem', opacity: 0.2 }} />
-              <p>새로운 알림이 없습니다.</p>
+            <div className="empty-state" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ backgroundColor: 'white', width: '5rem', height: '5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }}>
+                <Bell size={32} color="var(--text-muted)" />
+              </div>
+              <h2 style={{ fontSize: '1.125rem', fontWeight: 'bold', color: 'var(--foreground)', marginBottom: '0.5rem' }}>새로운 알림이 없습니다.</h2>
             </div>
           ) : (
             notifications.map((notif) => (
-              <div 
-                key={notif.notif_no} 
+              <div
+                key={notif.notif_no}
                 onClick={() => handleRead(notif)}
                 className="list-card bg-card"
-                style={{ 
-                  cursor: 'pointer', 
+                style={{
+                  cursor: 'pointer',
                   border: notif.is_read === 'N' ? '1px solid rgba(91,95,199,0.2)' : '1px solid var(--border-color)',
                   display: 'flex', alignItems: 'flex-start', gap: '0.75rem'
                 }}
@@ -103,10 +105,10 @@ export default function NotificationsPage() {
                   width: '8px', height: '8px', marginTop: '8px', borderRadius: '50%', flexShrink: 0,
                   backgroundColor: notif.is_read === 'N' ? 'var(--primary)' : 'transparent'
                 }} />
-                
+
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ 
-                    fontSize: '0.875rem', 
+                  <p style={{
+                    fontSize: '0.875rem',
                     fontWeight: notif.is_read === 'N' ? 600 : 400,
                     color: notif.is_read === 'N' ? 'var(--text)' : 'var(--text-muted)',
                     margin: 0

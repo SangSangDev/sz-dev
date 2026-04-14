@@ -28,9 +28,13 @@ export async function GET() {
       FROM T_USER_ROLE ur
       JOIN T_ROLE_MENU rm ON ur.role_no = rm.role_no
       JOIN T_MENU m ON rm.menu_no = m.menu_no
-      WHERE ur.user_id = ? AND m.use_yn = 'Y' AND m.del_yn = 'N' AND rm.can_read = 1
+      WHERE ur.user_id = ? 
+        AND m.use_yn = 'Y' 
+        AND m.del_yn = 'N' 
+        AND rm.can_read = 1
+        AND (m.is_board = 'N' OR (m.is_board = 'Y' AND (m.is_public = 'Y' OR (m.is_public = 'N' AND m.created_by = ?))))
       ORDER BY m.sort_order ASC
-    `, [session.user_id, session.user_id]);
+    `, [session.user_id, session.user_id, session.user_no]);
 
     const menus = menuRows.map(r => ({
       ...r,

@@ -101,7 +101,7 @@ export function RollupPopup({ isOpen, onClose, children }: RollupPopupProps) {
           color: 'var(--foreground)',
           borderTopLeftRadius: '1.25rem', 
           borderTopRightRadius: '1.25rem',
-          padding: '1.5rem', 
+          padding: '1.25rem 1.25rem', 
           paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))',
           boxShadow: '0 -10px 25px -5px rgba(0, 0, 0, 0.1)',
           transform: currentTransform,
@@ -118,7 +118,7 @@ export function RollupPopup({ isOpen, onClose, children }: RollupPopupProps) {
         }}
       >
         {/* Handle bar indicator */}
-        <div style={{ width: '40px', height: '4px', backgroundColor: 'var(--handle-color)', borderRadius: '4px', margin: '0 auto 1.25rem', cursor: 'grab' }} />
+        <div style={{ width: '40px', height: '4px', backgroundColor: 'var(--handle-color)', borderRadius: '4px', margin: '0 auto 1rem', cursor: 'grab' }} />
         
         {/* Content passed from caller */}
         {children}

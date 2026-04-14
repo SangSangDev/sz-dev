@@ -28,11 +28,25 @@ DELIMITER ;
 CREATE TABLE IF NOT EXISTS `T_USER` (
   `user_no` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_locked` tinyint(1) NOT NULL DEFAULT '0',
+  `last_login_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_no`),
-  UNIQUE KEY `idx_user_id` (`user_id`)
+  UNIQUE KEY `idx_user_id` (`user_id`),
+  UNIQUE KEY `idx_user_email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Email Verification Table
+CREATE TABLE IF NOT EXISTS `T_EMAIL_VERIFICATION` (
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `code` varchar(6) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `expires_at` timestamp NOT NULL,
+  `is_verified` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Role Table

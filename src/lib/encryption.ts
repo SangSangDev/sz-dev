@@ -57,3 +57,46 @@ export function decryptMessage(encryptedText: string): string {
     return encryptedText;
   }
 }
+
+/**
+ * Encrypts a string deterministically (using a fixed IV).
+ * Used for fields that require database uniqueness (e.g. Email).
+ * Format: FIX:EncryptedText
+ */
+export function encryptDeterministic(text: string): string {
+  if (!text) return text;
+  try {
+    const fixedIv = Buffer.alloc(16, 0); // Fixed IV for deterministic output
+    const cipher = crypto.createCipheriv(ALGORITHM, ENCRYPTION_KEY, fixedIv);
+    let encrypted = cipher.update(text, 'utf-8', 'hex');
+    encrypted += cipher.final('hex');
+    return `FIX:${encrypted}`;
+  } catch (error) {
+    console.error('Deterministic Encryption failed:', error);
+    return text;
+  }
+}
+
+/**
+ * Decrypts a deterministic cipher text.
+ */
+export function decryptDeterministic(encryptedText: string): string {
+  if (!encryptedText || typeof encryptedText !== 'string') return encryptedText;
+  
+  if (!encryptedText.startsWith('FIX:')) {
+    return encryptedText; // Legacy plaintext
+  }
+
+  try {
+    const cipherText = encryptedText.split(':')[1];
+    const fixedIv = Buffer.alloc(16, 0);
+    const decipher = crypto.createDecipheriv(ALGORITHM, ENCRYPTION_KEY, fixedIv);
+    
+    let decrypted = decipher.update(cipherText, 'hex', 'utf-8');
+    decrypted += decipher.final('utf-8');
+    
+    return decrypted;
+  } catch (error) {
+    return encryptedText;
+  }
+}

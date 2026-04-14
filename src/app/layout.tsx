@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { MobileNav } from '@/components/layout/MobileNav';
 import { ToastContainer } from '@/components/ui/ToastContainer';
 
 export const metadata: Metadata = {
@@ -30,7 +29,6 @@ export default function RootLayout({
       <body>
         <main className="app-container">
           {children}
-          <MobileNav />
         </main>
         <ToastContainer />
       </body>

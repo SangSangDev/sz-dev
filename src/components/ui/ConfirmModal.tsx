@@ -74,14 +74,14 @@ export function ConfirmModal({
         animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
       }}>
         {/* Header */}
-        <div style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)' }}>
+        <div style={{ height: '4rem', padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: iconColor }}>
             {icon}
             <h3 style={{ fontSize: '1.0625rem', fontWeight: 'bold', color: 'var(--foreground)' }}>{title}</h3>
           </div>
           {onCancel && (
-            <button 
-              onClick={onCancel} 
+            <button
+              onClick={onCancel}
               disabled={isLoading}
               style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: isLoading ? 'not-allowed' : 'pointer', padding: '0.25rem' }}
             >
@@ -89,27 +89,27 @@ export function ConfirmModal({
             </button>
           )}
         </div>
-        
+
         {/* Body */}
         <div style={{ padding: '1.5rem', fontSize: '0.9375rem', color: 'var(--foreground)', lineHeight: 1.6 }}>
           {message}
         </div>
-        
+
         {/* Footer */}
         <div style={{ padding: '1rem 1.5rem', backgroundColor: 'transparent', borderTop: '1px solid var(--border-color)', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', borderBottomLeftRadius: '1rem', borderBottomRightRadius: '1rem' }}>
           {onCancel && (
-            <Button 
-              variant="ghost" 
-              onClick={onCancel} 
+            <Button
+              variant="ghost"
+              onClick={onCancel}
               disabled={isLoading}
               style={{ minWidth: '5rem' }}
             >
               {cancelText}
             </Button>
           )}
-          <Button 
-            variant={confirmVariant} 
-            onClick={onConfirm} 
+          <Button
+            variant={confirmVariant}
+            onClick={onConfirm}
             disabled={isLoading}
             style={{ minWidth: '5rem' }}
           >
@@ -117,7 +117,8 @@ export function ConfirmModal({
           </Button>
         </div>
       </div>
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
       `}} />

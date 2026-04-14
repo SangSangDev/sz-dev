@@ -27,7 +27,15 @@ SET NAMES utf8mb4;
 
 LOCK TABLES `T_MENU` WRITE;
 /*!40000 ALTER TABLE `T_MENU` DISABLE KEYS */;
-INSERT IGNORE INTO `T_MENU` (`menu_no`, `menu_name`, `parent_no`, `url`, `sort_order`, `created_at`, `description`, `use_yn`, `del_yn`, `is_board`, `is_public`, `board_code`, `board_sort`) VALUES ('RUU1XIV0XDW','컨텐츠 관리',NULL,'/user/content',2,'2026-04-06 00:10:24',NULL,'Y','N','N','Y',NULL,0),('RUU1XIV0XDX','대시보드',NULL,'/dashboard',1,'2026-04-06 00:13:30',NULL,'Y','N','N','Y',NULL,0),('RUU1XIV0XDY','시스템 설정',NULL,'/system',5,'2026-04-06 00:10:24',NULL,'Y','N','N','Y',NULL,0),('RUU1XIV0XDZ','모드 관리',NULL,'/user/mode',3,'2026-04-06 00:10:24',NULL,'Y','N','N','Y',NULL,0),('RUU1XIV0XE0','메뉴 관리','RUU1XIV0XDY','/system/menu',6,'2026-04-06 00:10:24',NULL,'Y','N','N','Y',NULL,0),('RUU1XIV0XE1','역할 권한','RUU1XIV0XDY','/system/role',7,'2026-04-06 00:10:24',NULL,'Y','N','N','Y',NULL,0),('RUU1XIV0XE2','사용자 관리','RUU1XIV0XDY','/user/user-admin',8,'2026-04-06 00:10:24',NULL,'Y','N','N','Y',NULL,0),('RUU1XL2XOG0','게시판 테스트',NULL,'/boards/B_HCB7EI',9,'2026-04-08 08:57:33',NULL,'Y','N','Y','Y','B_HCB7EI',2),('RUU1XL2XOG6','나의 게시판',NULL,'/boards/B_D7UHOK',10,'2026-04-09 00:42:38',NULL,'Y','N','Y','N','B_D7UHOK',1),('RUUW006Y134','이슈리스트',NULL,'/boards/B_HANG0E',11,'2026-04-10 00:09:56',NULL,'Y','N','Y','Y','B_HANG0E',3);
+INSERT IGNORE INTO `T_MENU` (`menu_no`, `menu_name`, `parent_no`, `url`, `sort_order`, `board_sort`, `created_at`, `description`, `use_yn`, `del_yn`, `is_board`, `is_public`, `board_code`, `created_by`) VALUES 
+('RUU1XIV0XDX','대시보드',NULL,'/dashboard',1,0,'2026-04-06 00:13:30',NULL,'Y','N','N','Y',NULL,'RUU1XIV0XDS'),
+('RUU1XIV0XDY','시스템 설정',NULL,'/system',5,0,'2026-04-06 00:10:24',NULL,'N','N','N','Y',NULL,'RUU1XIV0XDS'),
+('RUU1XIV0XE0','메뉴 관리','RUU1XIV0XDY','/system/menu',6,0,'2026-04-06 00:10:24',NULL,'N','N','N','Y',NULL,'RUU1XIV0XDS'),
+('RUU1XIV0XE1','역할 권한','RUU1XIV0XDY','/system/role',7,0,'2026-04-06 00:10:24',NULL,'N','N','N','Y',NULL,'RUU1XIV0XDS'),
+('RUU1XIV0XE2','사용자 관리','RUU1XIV0XDY','/user/user-admin',8,0,'2026-04-06 00:10:24',NULL,'Y','N','N','Y',NULL,'RUU1XIV0XDS'),
+('RUU1XL2XOG0','게시판 테스트',NULL,'/boards/B_HCB7EI',9,2,'2026-04-08 08:57:33',NULL,'Y','N','Y','Y','B_HCB7EI','RUU1XIV0XDS'),
+('RUU1XL2XOG6','나의 게시판',NULL,'/boards/B_D7UHOK',10,1,'2026-04-09 00:42:38',NULL,'Y','N','Y','N','B_D7UHOK','RUU1XIV0XDS'),
+('RUUW006Y134','이슈리스트',NULL,'/boards/B_HANG0E',11,3,'2026-04-10 00:09:56',NULL,'Y','N','Y','Y','B_HANG0E','RUU1XIV0XDS');
 /*!40000 ALTER TABLE `T_MENU` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -57,7 +65,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `T_USER` WRITE;
 /*!40000 ALTER TABLE `T_USER` DISABLE KEYS */;
-INSERT IGNORE INTO `T_USER` (`user_no`, `user_id`, `password`, `user_name`, `created_at`) VALUES ('RUU1XIV0XDS','admin','8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918','시스템관리자','2026-04-08 08:51:36'),('RUU1XIV0XDT','user','04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb','일반사용자','2026-04-08 08:51:36');
+INSERT IGNORE INTO `T_USER` (`user_no`, `user_id`, `password`, `user_name`, `created_at`) VALUES ('RUU1XIV0XDS','admin','8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918','시스템관리자','2026-04-08 08:51:36'),('RUU1XIV0XDT','user','04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb','일반사용자','2026-04-08 08:51:36'),('RUU1XIV0XSY','sysadmin','b3a8e0e1f9ab1bfe3a36f231f676f78bb30a519d2b21e6c530c0eee15cce9b1a','총괄최고관리자','2026-04-14 00:00:00');
 /*!40000 ALTER TABLE `T_USER` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -67,7 +75,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `T_USER_ROLE` WRITE;
 /*!40000 ALTER TABLE `T_USER_ROLE` DISABLE KEYS */;
-INSERT IGNORE INTO `T_USER_ROLE` (`user_id`, `role_no`) VALUES ('admin','RUU1XIV0XDU'),('user','RUU1XIV0XDV');
+INSERT IGNORE INTO `T_USER_ROLE` (`user_id`, `role_no`) VALUES ('admin','RUU1XIV0XDU'),('user','RUU1XIV0XDV'),('sysadmin','RUU1XIV0XDU');
 /*!40000 ALTER TABLE `T_USER_ROLE` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

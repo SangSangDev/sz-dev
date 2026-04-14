@@ -276,10 +276,11 @@ function ChatsContent() {
 
         <div
           style={{
-            flex: 1, display: 'flex', flexDirection: 'column',
+            position: 'absolute', inset: 0,
+            display: 'flex', flexDirection: 'column',
             transform: `translateY(${pullDistance}px)`,
             transition: isRefreshing || pullStartY.current === 0 ? 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'none',
-            position: 'relative', zIndex: 2, minHeight: '100%',
+            zIndex: 2,
           }}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -290,7 +291,7 @@ function ChatsContent() {
               목록 불러오는 중...
             </div>
           ) : filteredRooms.length === 0 ? (
-            <div className="empty-state" style={{ height: '70vh' }}>
+            <div className="empty-state" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ backgroundColor: 'white', width: '5rem', height: '5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)' }}>
                 <MessageSquare size={32} color="var(--text-muted)" />
               </div>
@@ -309,7 +310,7 @@ function ChatsContent() {
                       <span>{room.room_name.charAt(0)}</span>
                       {/* Unread Badge */}
                       {room.unread_count > 0 && (
-                        <div style={{ 
+                        <div style={{
                           position: 'absolute', top: '-0.25rem', right: '-0.25rem',
                           backgroundColor: 'var(--danger)', color: 'white',
                           fontSize: '0.7rem', fontWeight: 'bold',
@@ -317,7 +318,7 @@ function ChatsContent() {
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           borderRadius: '1rem', padding: '0 0.25rem',
                           border: '2px solid var(--card-bg)'
-                         }}>
+                        }}>
                           {room.unread_count > 99 ? '99+' : room.unread_count}
                         </div>
                       )}
@@ -352,12 +353,12 @@ function ChatsContent() {
       </div>
 
       <FabMenu>
-        <FabMenuItem 
+        <FabMenuItem
           onClick={() => setShowDirectModal(true)}
           label="사용자 검색"
           icon={<Search size={16} color="var(--primary)" />}
         />
-        <FabMenuItem 
+        <FabMenuItem
           href="/chats/create"
           label="그룹 채팅 만들기"
           icon={<Users size={16} color="var(--primary)" />}

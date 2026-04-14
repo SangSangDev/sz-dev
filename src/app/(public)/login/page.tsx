@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { MessageSquareText, Check } from 'lucide-react';
+import { showToast } from '@/lib/toast';
 
 export default function LoginPage() {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [rememberId, setRememberId] = useState(false);
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -25,7 +25,6 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
@@ -50,7 +49,7 @@ export default function LoginPage() {
       router.push('/dashboard');
       router.refresh();
     } catch (err: any) {
-      setError(err.message);
+      showToast(err.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -173,14 +172,14 @@ export default function LoginPage() {
           <MessageSquareText color="white" size={32} strokeWidth={1.5} />
         </div>
 
-        <h1 className="text-3xl font-bold mb-2 text-center" style={{ letterSpacing: '-0.02em', color: 'var(--foreground)' }}>
+        <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '0.5rem', textAlign: 'center', letterSpacing: '-0.02em', color: 'var(--foreground)' }}>
           SZ WORKS
         </h1>
-        <p className="text-center mb-10" style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>
+        <p style={{ textAlign: 'center', marginBottom: '2.5rem', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
           welcome to sz works
         </p>
 
-        <form onSubmit={handleLogin} className="flex flex-col" style={{ gap: '1.7rem' }}>
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.7rem' }}>
           <div>
             <Input
               type="text"
@@ -214,15 +213,16 @@ export default function LoginPage() {
             아이디 저장
           </label>
 
-          {error && (
-            <p className="text-center" style={{ color: 'var(--danger)', fontSize: '0.875rem', fontWeight: 500, background: 'rgba(239, 68, 68, 0.1)', padding: '0.5rem', borderRadius: '0.5rem', marginTop: '-0.5rem' }}>
-              {error}
-            </p>
-          )}
-
-          <Button type="submit" className="custom-button w-full" disabled={loading} style={{ marginTop: '0.5rem' }}>
+          <Button type="submit" className="custom-button" disabled={loading} style={{ width: '100%', marginTop: '0.5rem' }}>
             {loading ? '로그인 중...' : '로그인'}
           </Button>
+
+          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', textAlign: 'center', marginTop: '0.5rem' }}>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>아직 계정이 없으신가요? </span>
+            <button type="button" onClick={() => router.push('/signup')} style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '0.875rem', background: 'none' }}>
+              회원가입하기
+            </button>
+          </div>
         </form>
       </div>
     </div>
