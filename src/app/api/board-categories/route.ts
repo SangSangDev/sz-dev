@@ -5,12 +5,15 @@ import db from '@/lib/db';
 import { getSession } from '@/lib/session';
 import { RowDataPacket } from 'mysql2';
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const [rows] = await db.query<RowDataPacket[]>(`
+    const url = new URL(req.url);
+    const ownBoardsOnly = url.searchParams.get('ownBoardsOnly') === 'true';
+
+    let queryStr = `
       SELECT m.menu_no, m.menu_name, m.board_code, m.is_public, m.created_at, m.board_sort,
              (CASE WHEN rm.can_read = 1 THEN 1 ELSE 0 END) as has_access,
              (SELECT COUNT(*) FROM T_BOARD b WHERE b.board_code = m.board_code AND b.del_yn = 'N') as post_count,
@@ -27,9 +30,18 @@ export async function GET() {
       LEFT JOIN T_ROLE_MENU rm ON m.menu_no = rm.menu_no
       LEFT JOIN T_USER_ROLE ur ON rm.role_no = ur.role_no AND ur.user_id = ?
       WHERE m.is_board = 'Y' AND m.use_yn = 'Y' AND m.del_yn = 'N'
+    `;
+
+    if (ownBoardsOnly) {
+      queryStr += ` AND rm.can_delete = 1`;
+    }
+
+    queryStr += `
       GROUP BY m.menu_no, m.menu_name, m.board_code, m.is_public, m.created_at, m.board_sort, rm.can_read
       ORDER BY m.board_sort ASC, m.created_at DESC
-    `, [session.user_id, session.user_id]);
+    `;
+
+    const [rows] = await db.query<RowDataPacket[]>(queryStr, [session.user_id, session.user_id]);
 
     // Deduplicate: prefer has_access = 1 if multiple roles give access
     const uniqueBoards = new Map();

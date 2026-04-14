@@ -40,7 +40,7 @@ export default function DashboardPage() {
   const fetchCategories = async () => {
     try {
       const [catRes, meRes] = await Promise.all([
-        fetch('/api/board-categories'),
+        fetch('/api/board-categories?ownBoardsOnly=true'),
         fetch('/api/auth/me')
       ]);
 
