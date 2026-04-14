@@ -7,7 +7,7 @@ async function run() {
       password: 'szdev_password',
       database: 'szdev'
     });
-    await conn.query('ALTER TABLE T_MENU ADD COLUMN board_sort INT DEFAULT 0;');
+    await conn.query(`UPDATE T_MENU m JOIN T_USER u ON m.created_by = u.user_id SET m.created_by = u.user_no;`);
     console.log('Success');
     await conn.end();
   } catch (e) {

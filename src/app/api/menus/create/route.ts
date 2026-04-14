@@ -30,9 +30,9 @@ export async function POST(req: Request) {
 
     // Insert new menu
     await db.query(`
-      INSERT INTO T_MENU (menu_no, menu_name, url, sort_order, use_yn, del_yn, is_board, board_code, is_public)
-      VALUES (?, ?, ?, ?, 'Y', 'N', 'Y', ?, ?)
-    `, [menuNo, menuName, url, sortOrder, boardCode, isPublic || 'Y']);
+      INSERT INTO T_MENU (menu_no, menu_name, url, sort_order, use_yn, del_yn, is_board, board_code, is_public, created_by)
+      VALUES (?, ?, ?, ?, 'Y', 'N', 'Y', ?, ?, ?)
+    `, [menuNo, menuName, url, sortOrder, boardCode, isPublic || 'Y', session.user_no]);
 
     // Grant read access to ALL roles for this new board menu
     const [allRoles] = await db.query<RowDataPacket[]>('SELECT role_no FROM T_ROLE');

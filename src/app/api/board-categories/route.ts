@@ -32,16 +32,19 @@ export async function GET(req: Request) {
       WHERE m.is_board = 'Y' AND m.use_yn = 'Y' AND m.del_yn = 'N'
     `;
 
+    const queryParams: any[] = [session.user_id, session.user_id];
+
     if (ownBoardsOnly) {
-      queryStr += ` AND rm.can_delete = 1`;
+      queryStr += ` AND (m.is_public = 'Y' OR (m.is_public = 'N' AND m.created_by = ?))`;
+      queryParams.push(session.user_no);
     }
 
     queryStr += `
-      GROUP BY m.menu_no, m.menu_name, m.board_code, m.is_public, m.created_at, m.board_sort, rm.can_read
+      GROUP BY m.menu_no, m.menu_name, m.board_code, m.is_public, m.created_at, m.board_sort, rm.can_read, m.created_by
       ORDER BY m.board_sort ASC, m.created_at DESC
     `;
 
-    const [rows] = await db.query<RowDataPacket[]>(queryStr, [session.user_id, session.user_id]);
+    const [rows] = await db.query<RowDataPacket[]>(queryStr, queryParams);
 
     // Deduplicate: prefer has_access = 1 if multiple roles give access
     const uniqueBoards = new Map();

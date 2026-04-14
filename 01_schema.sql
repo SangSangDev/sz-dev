@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS `T_MENU` (
   `is_board` char(1) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'N',
   `is_public` char(1) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Y',
   `board_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_by` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`menu_no`),
   UNIQUE KEY `idx_menu_name` (`menu_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
