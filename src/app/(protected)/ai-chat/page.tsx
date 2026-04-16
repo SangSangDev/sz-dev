@@ -17,8 +17,6 @@ interface Message {
 const SUGGESTIONS = [
   '최근 게시글 보여줘',
   '어떤 게시판들이 있어?',
-  '공지사항 알려줘',
-  '자유 게시판 최신 글',
 ];
 
 const TOOL_LABEL: Record<string, string> = {
@@ -210,7 +208,7 @@ export default function AiChatPage() {
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, display: 'flex', flexDirection: 'column', maxWidth: '42rem', margin: '0 auto', width: '100%', backgroundColor: 'var(--background)' }}>
+    <div style={{ position: 'fixed', top: 0, bottom: 0, left: 0, right: 0, display: 'flex', flexDirection: 'column', margin: '0 auto', width: '100%', backgroundColor: 'var(--background)' }}>
       {/* Header */}
       <header className="header shrink-0 sticky-header" style={{ justifyContent: 'center' }}>
         <h1 style={{ fontSize: '1.0625rem', fontWeight: 'bold', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -304,13 +302,13 @@ export default function AiChatPage() {
                               <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
                                 components={{
-                                  p: ({node, ...props}) => <p style={{ margin: '0 0 0.5rem 0', padding: 0 }} {...props} />,
-                                  ul: ({node, ...props}) => <ul style={{ margin: '0 0 0.5rem 0', paddingLeft: '1.5rem', listStyleType: 'disc' }} {...props} />,
-                                  ol: ({node, ...props}) => <ol style={{ margin: '0 0 0.5rem 0', paddingLeft: '1.5rem', listStyleType: 'decimal' }} {...props} />,
-                                  li: ({node, ...props}) => <li style={{ marginBottom: '0.25rem' }} {...props} />,
-                                  a: ({node, ...props}) => <a style={{ color: 'var(--primary)', textDecoration: 'underline' }} target="_blank" rel="noopener noreferrer" {...props} />,
-                                  strong: ({node, ...props}) => <strong style={{ fontWeight: 600 }} {...props} />,
-                                  code: ({node, className, children, ...props}: any) => {
+                                  p: ({ node, ...props }) => <p style={{ margin: '0 0 0.5rem 0', padding: 0 }} {...props} />,
+                                  ul: ({ node, ...props }) => <ul style={{ margin: '0 0 0.5rem 0', paddingLeft: '1.5rem', listStyleType: 'disc' }} {...props} />,
+                                  ol: ({ node, ...props }) => <ol style={{ margin: '0 0 0.5rem 0', paddingLeft: '1.5rem', listStyleType: 'decimal' }} {...props} />,
+                                  li: ({ node, ...props }) => <li style={{ marginBottom: '0.25rem' }} {...props} />,
+                                  a: ({ node, ...props }) => <a style={{ color: 'var(--primary)', textDecoration: 'underline' }} target="_blank" rel="noopener noreferrer" {...props} />,
+                                  strong: ({ node, ...props }) => <strong style={{ fontWeight: 600 }} {...props} />,
+                                  code: ({ node, className, children, ...props }: any) => {
                                     const match = /language-(\w+)/.exec(className || '');
                                     const isInline = !match && !String(children).includes('\n');
                                     return isInline ? (
@@ -333,7 +331,7 @@ export default function AiChatPage() {
                           ) : (
                             msg.text
                           )}
-                          
+
                           {msg.isStreaming && activeTool === null && (msg.text || msg.text === '') && (
                             <span style={{ display: 'inline-block', width: '2px', height: '1em', backgroundColor: 'var(--primary)', marginLeft: '2px', animation: 'blink 1s step-end infinite', verticalAlign: 'text-bottom' }} />
                           )}
@@ -363,7 +361,7 @@ export default function AiChatPage() {
 
       {/* Input Area */}
       <div style={{ flexShrink: 0, backgroundColor: 'var(--card-bg)', borderTop: '1px solid var(--border-color)', padding: '0.75rem', paddingBottom: 'calc(env(safe-area-inset-bottom) + 4.75rem)', zIndex: 20, boxShadow: '0 -4px 10px -4px rgba(0,0,0,0.05)' }}>
-        <form onSubmit={(e) => { e.preventDefault(); sendMessage(input); }} style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', maxWidth: '42rem', margin: '0 auto' }}>
+        <form onSubmit={(e) => { e.preventDefault(); sendMessage(input); }} style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', margin: '0 auto', width: '100%' }}>
           <div style={{ flex: 1, backgroundColor: 'var(--background)', borderRadius: '1rem', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', minHeight: '2.75rem', transition: 'all 0.2s' }}>
             <textarea
               ref={textareaRef}

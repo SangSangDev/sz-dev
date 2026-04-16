@@ -13,7 +13,7 @@ export async function GET() {
     const [rows] = await db.query<RowDataPacket[]>(`
       SELECT notif_no, user_id, actor_id, type, target_url, message, is_read, created_at
       FROM T_NOTIFICATION
-      WHERE user_id = ?
+      WHERE user_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
       ORDER BY created_at DESC
       LIMIT 100
     `, [session.user_id]);

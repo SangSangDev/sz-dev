@@ -14,9 +14,9 @@ export const aiTools: Tool[] = [
               type: SchemaType.STRING,
               description: '검색할 키워드 (제목/내용에서 검색)',
             },
-            board_code: {
+            board_name: {
               type: SchemaType.STRING,
-              description: '(선택) 특정 게시판 코드 (예: NOTICE, FREE). 생략하면 전체 게시판 검색.',
+              description: '(선택) 특정 게시판 명. 생략하면 전체 게시판 검색.',
             },
             limit: {
               type: SchemaType.NUMBER,
@@ -32,9 +32,9 @@ export const aiTools: Tool[] = [
         parameters: {
           type: SchemaType.OBJECT,
           properties: {
-            board_code: {
+            board_name: {
               type: SchemaType.STRING,
-              description: '(선택) 게시판 코드. 생략하면 전체 게시판 최신 글.',
+              description: '(선택) 게시판 명. 생략하면 전체 게시판 최신 글.',
             },
             limit: {
               type: SchemaType.NUMBER,
@@ -55,7 +55,7 @@ export const aiTools: Tool[] = [
       },
       {
         name: 'get_post_content',
-        description: '특정 게시물의 제목, 본문 내용, 작성자, 작성일 등을 전체 조회합니다. 특정 게시물의 내용을 자세히 읽고 요약하거나 답변해야 할 때 호출하세요.',
+        description: '특정 게시물의 제목, 본문 내용, 작성자, 작성일 등을 전체 조회합니다. 특정 게시물의 내용을 자세히 읽고 요약하거나 답변해야 할 때 호출하세요. board_no 또는 매칭되는 title 중 하나를 제공해야 합니다.',
         parameters: {
           type: SchemaType.OBJECT,
           properties: {
@@ -63,8 +63,12 @@ export const aiTools: Tool[] = [
               type: SchemaType.STRING,
               description: '조회할 게시물 고유 번호 (board_no)',
             },
+            title: {
+              type: SchemaType.STRING,
+              description: '조회할 게시물의 정확한 제목 (board_no를 모를 때 사용)',
+            },
           },
-          required: ['board_no'],
+          required: [],
         },
       },
     ],
@@ -75,25 +79,29 @@ export async function handleToolCall(name: string, args: Record<string, unknown>
   try {
     if (name === 'search_board_posts') {
       const keyword = String(args.keyword ?? '');
-      const boardCode = args.board_code ? String(args.board_code) : null;
+      const boardName = args.board_name ? String(args.board_name) : null;
       const limit = Math.min(Number(args.limit ?? 5), 20);
       const like = `%${keyword}%`;
 
       let rows;
-      if (boardCode) {
+      if (boardName) {
         [rows] = await pool.query(
-          `SELECT board_no, board_code, title, LEFT(content, 200) AS preview, user_id,
-                  DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS created_at
-           FROM T_BOARD WHERE del_yn='N' AND board_code=? AND (title LIKE ? OR content LIKE ?)
-           ORDER BY created_at DESC LIMIT ?`,
-          [boardCode, like, like, limit]
+          `SELECT b.board_no, m.menu_name AS board_name, b.title, LEFT(b.content, 200) AS preview, b.user_id,
+                  DATE_FORMAT(b.created_at, '%Y-%m-%d %H:%i') AS created_at
+           FROM T_BOARD b
+           JOIN T_MENU m ON b.board_code = m.board_code
+           WHERE b.del_yn='N' AND m.menu_name=? AND m.use_yn='Y' AND m.del_yn='N' AND (b.title LIKE ? OR b.content LIKE ?)
+           ORDER BY b.created_at DESC LIMIT ?`,
+          [boardName, like, like, limit]
         );
       } else {
         [rows] = await pool.query(
-          `SELECT board_no, board_code, title, LEFT(content, 200) AS preview, user_id,
-                  DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS created_at
-           FROM T_BOARD WHERE del_yn='N' AND (title LIKE ? OR content LIKE ?)
-           ORDER BY created_at DESC LIMIT ?`,
+          `SELECT b.board_no, m.menu_name AS board_name, b.title, LEFT(b.content, 200) AS preview, b.user_id,
+                  DATE_FORMAT(b.created_at, '%Y-%m-%d %H:%i') AS created_at
+           FROM T_BOARD b
+           LEFT JOIN T_MENU m ON b.board_code = m.board_code
+           WHERE b.del_yn='N' AND (b.title LIKE ? OR b.content LIKE ?)
+           ORDER BY b.created_at DESC LIMIT ?`,
           [like, like, limit]
         );
       }
@@ -104,24 +112,29 @@ export async function handleToolCall(name: string, args: Record<string, unknown>
     }
 
     if (name === 'get_recent_posts') {
-      const boardCode = args.board_code ? String(args.board_code) : null;
+      const boardName = args.board_name ? String(args.board_name) : null;
       const limit = Math.min(Number(args.limit ?? 5), 20);
 
       let rows;
-      if (boardCode) {
+      if (boardName) {
         [rows] = await pool.query(
-          `SELECT board_no, board_code, title, user_id,
-                  DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS created_at,
+          `SELECT b.board_no, m.menu_name AS board_name, b.title, b.user_id,
+                  DATE_FORMAT(b.created_at, '%Y-%m-%d %H:%i') AS created_at,
                   (SELECT COUNT(*) FROM T_COMMENT c WHERE c.board_no=b.board_no AND c.del_yn='N') AS comment_count
-           FROM T_BOARD b WHERE del_yn='N' AND board_code=? ORDER BY created_at DESC LIMIT ?`,
-          [boardCode, limit]
+           FROM T_BOARD b
+           JOIN T_MENU m ON b.board_code = m.board_code
+           WHERE b.del_yn='N' AND m.menu_name=? AND m.use_yn='Y' AND m.del_yn='N'
+           ORDER BY b.created_at DESC LIMIT ?`,
+          [boardName, limit]
         );
       } else {
         [rows] = await pool.query(
-          `SELECT board_no, board_code, title, user_id,
-                  DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS created_at,
+          `SELECT b.board_no, m.menu_name AS board_name, b.title, b.user_id,
+                  DATE_FORMAT(b.created_at, '%Y-%m-%d %H:%i') AS created_at,
                   (SELECT COUNT(*) FROM T_COMMENT c WHERE c.board_no=b.board_no AND c.del_yn='N') AS comment_count
-           FROM T_BOARD b WHERE del_yn='N' ORDER BY created_at DESC LIMIT ?`,
+           FROM T_BOARD b
+           LEFT JOIN T_MENU m ON b.board_code = m.board_code
+           WHERE b.del_yn='N' ORDER BY b.created_at DESC LIMIT ?`,
           [limit]
         );
       }
@@ -133,9 +146,12 @@ export async function handleToolCall(name: string, args: Record<string, unknown>
 
     if (name === 'list_boards') {
       const [rows] = await pool.query(
-        `SELECT board_code, COUNT(*) AS post_count,
-                MAX(DATE_FORMAT(created_at, '%Y-%m-%d %H:%i')) AS latest_post_at
-         FROM T_BOARD WHERE del_yn='N' GROUP BY board_code ORDER BY post_count DESC`
+        `SELECT m.menu_name AS board_name, m.is_public, COUNT(b.board_no) AS post_count,
+                MAX(DATE_FORMAT(b.created_at, '%Y-%m-%d %H:%i')) AS latest_post_at
+         FROM T_MENU m
+         LEFT JOIN T_BOARD b ON m.board_code = b.board_code AND b.del_yn = 'N'
+         WHERE m.is_board='Y' AND m.use_yn='Y' AND m.del_yn='N'
+         GROUP BY m.menu_name, m.is_public ORDER BY post_count DESC`
       );
       const results = rows as Record<string, unknown>[];
       if (results.length === 0) return '등록된 게시판이 없습니다.';
@@ -143,16 +159,27 @@ export async function handleToolCall(name: string, args: Record<string, unknown>
     }
 
     if (name === 'get_post_content') {
-      const boardNo = String(args.board_no ?? '');
-      if (!boardNo) return '게시물 번호(board_no)가 필수입니다.';
+      const boardNo = args.board_no ? String(args.board_no) : null;
+      const title = args.title ? String(args.title) : null;
+      if (!boardNo && !title) return '게시물 번호(board_no) 또는 제목(title) 중 하나가 필수입니다.';
 
-      const [rows] = await pool.query(
-        `SELECT board_no, board_code, title, content, user_id,
-                DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS created_at
-         FROM T_BOARD WHERE board_no=? AND del_yn='N'`,
-        [boardNo]
-      );
-      
+      let rows;
+      if (boardNo) {
+        [rows] = await pool.query(
+          `SELECT board_no, board_code, title, content, user_id,
+          DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS created_at
+           FROM T_BOARD WHERE board_no =? AND del_yn = 'N'`,
+          [boardNo]
+        );
+      } else {
+        [rows] = await pool.query(
+          `SELECT board_no, board_code, title, content, user_id,
+          DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS created_at
+           FROM T_BOARD WHERE title LIKE ? AND del_yn = 'N' ORDER BY created_at DESC LIMIT 1`,
+          [`%${title}%`]
+        );
+      }
+
       const results = rows as Record<string, unknown>[];
       if (results.length === 0) return '존재하지 않거나 삭제된 게시물입니다.';
       return JSON.stringify(results[0]);
@@ -161,6 +188,6 @@ export async function handleToolCall(name: string, args: Record<string, unknown>
     return '알 수 없는 도구입니다.';
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return `DB 조회 오류: ${msg}`;
+    return `DB 조회 오류: ${msg} `;
   }
 }

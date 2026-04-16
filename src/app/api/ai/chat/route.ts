@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { getSession } from '@/lib/session';
 import { aiTools, handleToolCall } from '@/lib/ai/tools';
+import { encryptMessage, decryptMessage } from '@/lib/encryption';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
     const history = (rows as any[]).map(r => ({
       id: r.id.toString(),
       role: r.role,
-      text: r.text,
+      text: decryptMessage(r.text),
       toolsUsed: r.tools_used ? JSON.parse(r.tools_used) : [],
       created_at: Number(r.created_at)
     }));
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
   try {
     await pool.query(
       'INSERT INTO T_AI_CHAT_MESSAGE (user_id, role, content) VALUES (?, ?, ?)',
-      [session.user_id, 'user', lastMessageText]
+      [session.user_id, 'user', encryptMessage(lastMessageText)]
     );
   } catch (e) {
     console.error('Failed to save user message to DB', e);
@@ -80,14 +81,20 @@ export async function POST(req: NextRequest) {
 
       try {
         const model = genAI.getGenerativeModel({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-2.5-flash-lite',
           tools: aiTools,
           toolConfig: { functionCallingConfig: { mode: FunctionCallingMode.AUTO } },
-          systemInstruction: `당신은 sz-dev 커뮤니티의 AI 어시스턴트입니다.
-사용자의 질문에 친절하게 한국어로 답변합니다.
-게시판 정보, 최근 글, 내용 검색 등이 필요하면 제공된 도구를 적극적으로 활용하세요.
-도구로 얻은 정보를 바탕으로 자연스럽고 유용한 답변을 작성하세요.
-게시물 목록을 보여줄 때는 제목과 작성일을 포함해서 보기 좋게 정리해주세요.`,
+          systemInstruction: `당신은 SZ WOKRS AI 어시스턴트입니다.
+  사용자의 질문에 친절하게 한국어로 답변합니다.
+  [개념 숙지]
+  - 게시판(Board): 특정 주제의 '게시글(Post)'들을 모아두는 큰 범주나 폴더입니다.
+  - 게시글(Post): 각 게시판 내부에 사용자들이 개별적으로 작성한 상세 글입니다.
+  
+  [동작 규칙]
+  - 게시판 종류나 목록에 대해 답변할 때는 절대로 데이터베이스 내부 코드(예: B_HANG0E 등 board_code)를 노출하지 말고, 반드시 한글로 된 '웹 표기 게시판 이름(board_name / menu_name)'으로 자연스럽게 안내하세요.
+  - 제공된 도구들을 적극적으로 활용하여 게시판 목록 조회, 최신 글 확인, 키워드 검색뿐만 아니라 특정 게시물의 전체 상세 본문 내용(get_post_content)까지 자유롭게 열람하고 요약해 줄 수 있습니다. 
+  - 사용자가 특정 게시글이나 정보의 내용을 물어보면, 본문 조회 도구를 호출한 뒤 내용을 파악하여 상세히 보고/요약해 주세요.
+  - 게시물 목록을 보여줄 때는 게시판 이름, 제목과 작성일을 포함해서 보기 좋게 정리해주시고, 유용한 답변을 작성하세요.`,
         });
 
         // 대화 기록을 Gemini 형식으로 변환 (assistant → model)
@@ -146,7 +153,7 @@ export async function POST(req: NextRequest) {
           try {
             await pool.query(
               'INSERT INTO T_AI_CHAT_MESSAGE (user_id, role, content, tools_used) VALUES (?, ?, ?, ?)',
-              [session.user_id, 'assistant', fullAssistantText, JSON.stringify(executedTools)]
+              [session.user_id, 'assistant', encryptMessage(fullAssistantText), JSON.stringify(executedTools)]
             );
           } catch (e) {
             console.error('Failed to save assistant message to DB', e);
