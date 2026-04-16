@@ -372,7 +372,7 @@ export default function AiChatPage() {
               onKeyDown={handleKeyDown}
               placeholder="메시지 입력..."
               disabled={isLoading || isLoadingHistory}
-              className="form-input"
+              className="form-input no-scrollbar"
               rows={1}
               style={{ flex: 1, backgroundColor: 'transparent', border: 'none', padding: '0.75rem 1rem', fontSize: '0.9375rem', boxShadow: 'none', color: 'var(--foreground)', resize: 'none', maxHeight: '7rem', outline: 'none' }}
               autoFocus

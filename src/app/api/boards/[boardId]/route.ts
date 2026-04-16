@@ -58,3 +58,33 @@ export async function PATCH(request: Request, context: unknown) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request, context: unknown) {
+  const resolvedParams = await (context as { params: Promise<{ boardId: string }> }).params;
+  const boardId = resolvedParams.boardId;
+
+  try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const [rows] = await db.query<RowDataPacket[]>(`
+      SELECT user_id FROM T_BOARD WHERE board_no = ? AND del_yn = 'N'
+    `, [boardId]);
+
+    if (rows.length === 0) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    if (rows[0].user_id !== session.user_id) {
+      // Allow deletion if admin, otherwise only author. But wait, we didn't check admin.
+      // Usually admins handle deletion via other routes or we check role. For simple fix, just author:
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    await db.query(`
+      UPDATE T_BOARD SET del_yn = 'Y', updated_at = NOW() WHERE board_no = ?
+    `, [boardId]);
+
+    return NextResponse.json({ message: 'Board deleted' }, { status: 200 });
+  } catch (error) {
+    console.error('Delete board error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
