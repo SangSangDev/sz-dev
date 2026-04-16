@@ -33,9 +33,15 @@ export async function POST(request: Request) {
 
     // Fetch user's menus based on their roles
     const [menuRows] = await db.query<RowDataPacket[]>(`
-      SELECT m.menu_no, MAX(m.menu_name) as menu_name, MAX(m.url) as url, MAX(m.is_board) as is_board, 
-             MAX(m.board_code) as board_code, MAX(m.is_public) as is_public, MAX(m.sort_order) as sort_order,
-             MAX(rm.can_write) as can_write
+      SELECT 
+        m.menu_no
+        , MAX(m.menu_name) as menu_name
+        , MAX(m.url) as url
+        , MAX(m.is_board) as is_board
+        , MAX(m.board_code) as board_code
+        , MAX(m.is_public) as is_public
+        , MAX(m.sort_order) as sort_order
+        , MAX(rm.can_write) as can_write
       FROM T_USER_ROLE ur
       JOIN T_ROLE_MENU rm ON ur.role_no = rm.role_no
       JOIN T_MENU m ON rm.menu_no = m.menu_no
@@ -60,6 +66,8 @@ export async function POST(request: Request) {
       })),
     };
 
+    console.log(user)
+
     await createSession(user);
 
     // Update last_login_at
@@ -71,7 +79,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ user, message: 'Logged in successfully' }, { status: 200 });
   } catch (error) {
     console.error('Login error:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Internal server error',
       details: error instanceof Error ? error.message : String(error)
     }, { status: 500 });

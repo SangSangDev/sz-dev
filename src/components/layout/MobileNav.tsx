@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Menu, X, MessageCircle, Bell } from 'lucide-react';
+import { Home, Menu, X, MessageCircle, Bell, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MenuInfo } from '@/lib/session';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
@@ -151,6 +151,11 @@ export function MobileNav() {
         <Link href="/dashboard" className={cn("nav-item", pathname === '/dashboard' && "active")}>
           <Home size={24} fill={pathname === '/dashboard' ? "currentColor" : "none"} strokeWidth={pathname === '/dashboard' ? 1.5 : 2} />
           <span className="nav-item-text">대시보드</span>
+        </Link>
+
+        <Link href="/ai-chat" className={cn("nav-item", pathname === '/ai-chat' && "active")}>
+          <Bot size={24} strokeWidth={pathname === '/ai-chat' ? 1.5 : 2} />
+          <span className="nav-item-text">AI</span>
         </Link>
 
         <Link href="/chats" className={cn("nav-item", pathname.startsWith('/chats') && "active")} style={{ position: 'relative' }}>

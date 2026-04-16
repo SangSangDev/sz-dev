@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "sz-board": {
+      "command": "npm",
+      "args": ["run", "mcp"],
+      "cwd": "D:/team-3/sz-dev",
+      "env": {
+        "MYSQL_HOST": "localhost",
+        "MYSQL_USER": "root",
+        "MYSQL_PASSWORD": "root",
+        "MYSQL_DATABASE": "szdev",
+        "MYSQL_PORT": "3306"
+      }
+    }
+  }
+}

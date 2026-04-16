@@ -12,6 +12,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@tiptap/extension-bubble-menu": "^3.22.3",
     "@tiptap/extension-image": "^3.22.2",
     "@tiptap/extension-table": "^3.22.3",
@@ -28,15 +29,19 @@
     "next": "16.2.2",
     "nodemailer": "^8.0.5",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^20.19.39",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "cross-env": "^10.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

@@ -191,7 +191,16 @@ CREATE TABLE IF NOT EXISTS `T_CHAT_MESSAGE` (
   `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`msg_no`),
-  KEY `idx_chat_room` (`room_no`, `created_at` DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
+-- AI Chat Message Table
+CREATE TABLE IF NOT EXISTS `T_AI_CHAT_MESSAGE` (
+  `msg_no` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `role` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'user, assistant',
+  `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tools_used` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'JSON array of tools used',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`msg_no`),
+  KEY `idx_ai_chat_user` (`user_id`, `created_at` ASC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
